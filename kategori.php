@@ -194,80 +194,33 @@ a.disabled {
   </div>
 
   <div id ="demo" class="col-6 col-s-9">
-  	<?php 
-  	$aDoor;
-  	if(empty($_POST['form']) &&
-  	    !isset($_GET['pilihsektor']))
-  	{
-  	    echo "<script>alert('Centang salah satu sektor!'); window.location='/mainmenu.php';</script>";
-  	}
-  	else
-  	{
-  	    $sektorzxc;
-  	    $N;
-  	    if(empty($_POST['form'])){
-  	        $data_array =  array(
-  	            "id" => $_GET['pilihsektor']
-  	        );
-  	        $make_callSektor = callAPI('POST', 'http://localhost:8080/sektor/find', json_encode($data_array));
-  	        $responseSektor = json_decode($make_callSektor, true);
-  	        $sektorzxc=$responseSektor['namaSektor'];
-  	        $N=1;
-  	        $aDoor=array($_GET['pilihsektor']);
-  	    }else{
-  	        $aDoor = $_POST['form'];
-  	    $N = count($aDoor);
-  	    }
-  	    $sektorId = array(); 
-  	    $sektorNama = array(); 
-  	    echo "<h1>Perlengkapan Operasional</h1>";
-  	    echo "<p>Sektor =";
-  	    $sektor = '';
-  	    for($i=0; $i < $N; $i++)
-  	    {
-  	        
-  	        $myArray = explode('@@', $aDoor[$i]);
-  	        array_push($sektorId, $myArray[0]);
-  	        if(sizeof($myArray)>1){
-  	        array_push($sektorNama, 
-  	            $myArray[1]);
-  	        }else{
-  	            array_push($sektorNama,
-  	                $sektorzxc);
-  	            
-  	        }
-  	        /* echo($aDoor[$i] . " ");
-  	        if($i<$N-1){
-  	          echo(", ");
-  	        }; */
-  	    }
-  	    for($i=0; $i < $N; $i++)
-  	    {
-  	        echo($sektorNama[$i] . " ");
-  	        
-  	        $sektor = $sektor.$sektorId[$i];
-  	        if($i<$N-1){
-  	            echo(", ");
-  	            $sektor = $sektor.'@@';
-  	        };
-  	       /*  echo("id ".$sektorId[$i]);
-  	        echo("nama ".$sektorNama[$i]); */
-
-  	    }
-  	    echo "</p><br />";
-  	    $zxczxc = "";
-  	    $make_call2 = callAPI('POST', 'http://localhost:8080/kategori/findall/'.$_SESSION['username'], null);
-  	    $response2 = json_decode($make_call2, true);
-  	    
-  	    
-  	    for ($i = 0; $i < sizeof($response2); $i++){
-  	        echo "</p><a href='".$zxczxc.'/kategori.php?id='.$response2[$i]['id'].'&sektor='.$sektor."'>".$response2[$i]['nama']."</a>";
-  	        
-  	        echo "</p>";
-  	        //echo '<input type=\"checkbox\" name=\"form[]\" value=\"'.$response2[$i]['id'].'@@'.$response[$i]['namaSektor'].'\" />'.$response[$i]['namaSektor'].'<br />';
-  	    }
-  	}
-  	?>
+	<?php 
+	   echo "reserved";
+	   
+	   $arrSektor = explode('@@',$_GET['sektor']); 
+	   
+	   $make_call2 = callAPI('POST', 'http://localhost:8080/subKategori/findall/'.$_SESSION['username'], null);
+	   $response2 = json_decode($make_call2, true);
+	   
+	   
+	   for ($i = 0; $i < sizeof($response2); $i++){
+	       echo "</p>".$response2[$i]['nama'];
+	       echo '<a href="#" onclick="myFunction'.$i.'()" ><i class="fa fa-caret-down"></i></a>';
+	       echo '<div id="myDIV'.$i.'" style="display: none;">';
+	       $make_call3 = callAPI('POST', 'http://localhost:8080/jenis/findBySubKategori/'.$response2[$i]['id'], json_encode($arrSektor));
+	       $response3 = json_decode($make_call3, true);
+	       echo "<table><tr><th style='width:200px'>Nama</th><th>Sektor</th><th>Baik</th><th>Rusak</th></tr>";
+	         for ($x = 0; $x < sizeof($response3); $x++){
+	             echo "<tr><td>".$response3[$x]['nama']."</td><td>".getSektorName($response3[$x]['sektor'])."</td><td>".$response3[$x]['baik']."</td><td>".$response3[$x]['rusak']."</td></tr>";
+	       };echo "</table>"; 
+    echo '</div>';
+	       echo "</p>";
+	       //echo '<input type=\"checkbox\" name=\"form[]\" value=\"'.$response2[$i]['id'].'@@'.$response[$i]['namaSektor'].'\" />'.$response[$i]['namaSektor'].'<br />';
+	   }
+	?>
+	
+	
+  
   </div>
   <div class="col-3 col-s-12">
   
@@ -278,9 +231,34 @@ a.disabled {
   <p>Resize the browser window to see how the content respond to the resizing.</p>
 </div>
 
+<script>
+<?php 
+    for ($i = 0; $i < sizeof($response2); $i++){
+        echo 'function myFunction'.$i.'() {
+  var x = document.getElementById("myDIV'.$i.'");
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
+}';
+    };
+?>
+
+</script>
 </body>
 </html>
 <?php 
+function getSektorName($idStr){
+    $data_array =  array(
+        "id" => $idStr
+    );
+    $make_callSektor = callAPI('POST', 'http://localhost:8080/sektor/find', json_encode($data_array));
+    $responseSektor = json_decode($make_callSektor, true);
+    $sektorzxc=$responseSektor['namaSektor'];
+    return $sektorzxc;
+}
+
 function callAPI($method, $url, $data){
     $curl = curl_init();
     switch ($method){

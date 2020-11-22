@@ -118,8 +118,16 @@ html {
   width: 5%;
   height: auto;
 }
+a.disabled {
+  pointer-events: none;
+  cursor: default;
+  overflow:hidden;
+  display: none;
+}
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="/jaka.js"></script>
 </head>
 <body>
 
@@ -137,7 +145,9 @@ html {
   <div class="col-3 col-s-3 menu">
     <ul>
       <li> <i class="fa fa-bars"></i>
-      <a href="#" style="color: #000000;text-decoration:none;" onclick='document.getElementById("demo").innerHTML = "<?php 
+      <a href="<?php echo "/checkop.php?pilihsektor=".$_SESSION['sektor'];?>" 
+      style="color: #000000;text-decoration:none;" class="<?php if($_SESSION['role']!=3){echo "disabled";}?>">Perlengkapan Operasional</a>
+      <a href="#" class="<?php if($_SESSION['role']==3){echo "disabled";}?>" style="color: #000000;text-decoration:none;" onclick='document.getElementById("demo").innerHTML = "<?php 
       echo "<h1>Perlengkapan Operasional</h1>";
       echo "<p>";
       
@@ -145,11 +155,11 @@ html {
           echo "data data";
       }else{
       echo '<form action=\"checkop.php\" method=\"post\">Pilih Sektor  <input type=\"submit\" name=\"formSubmit\" value=\"Submit\" /><br \>';
-      $make_call = callAPI('POST', 'http://localhost:8080/sektor/findall/kasie', null);
+      $make_call = callAPI('POST', 'http://localhost:8080/sektor/findall/'.$_SESSION['username'], null);
       $response = json_decode($make_call, true);
       
        for ($i = 0; $i < sizeof($response); $i++){
-          echo '<input type=\"checkbox\" name=\"form[]\" value=\"'.$response[$i]['id'].'\" />'.$response[$i]['namaSektor'].'<br />';
+           echo '<input type=\"checkbox\" name=\"form[]\" value=\"'.$response[$i]['id'].'@@'.$response[$i]['namaSektor'].'\" />'.$response[$i]['namaSektor'].'<br />';
       }
       echo ''; 
       echo '</form>';
@@ -159,7 +169,7 @@ html {
       ?>
       "'>Perlengkapan Operasional</a></li>
       <li><i class="fa fa-bars"></i> 
-      <a href="#" style="color: #000000;text-decoration:none;" onclick='document.getElementById("demo").innerHTML = "<?php 
+      <a href="#" class="disabled" style="color: #000000;text-decoration:none;" onclick='document.getElementById("demo").innerHTML = "<?php 
       echo "<h1>Perlengkapan Non Operasional</h1>";
       echo "<p>";
       
@@ -167,11 +177,11 @@ html {
           echo "data data";
       }else{
       echo '<form action=\"checkop.php\" method=\"post\">Pilih Sektor  <input type=\"submit\" name=\"formSubmit\" value=\"Submit\" /><br \>';
-      $make_call = callAPI('POST', 'http://localhost:8080/sektor/findall/kasie', null);
+      $make_call = callAPI('POST', 'http://localhost:8080/sektor/findall/'.$_SESSION['username'], null);
       $response = json_decode($make_call, true);
       
        for ($i = 0; $i < sizeof($response); $i++){
-          echo '<input type=\"checkbox\" name=\"form[]\" value=\"'.$response[$i]['id'].'\" />'.$response[$i]['namaSektor'].'<br />';
+           echo '<input type=\"checkbox\" name=\"form[]\" value=\"'.$response[$i]['id'].'@@'.$response[$i]['namaSektor'].'\" />'.$response[$i]['namaSektor'].'<br />';
       }
       echo ''; 
       echo '</form>';
