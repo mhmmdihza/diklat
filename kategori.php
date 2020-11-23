@@ -13,8 +13,35 @@ session_start();
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 <style>
-* {
+* 
+#customers {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+#customers td, #customers th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#customers tr:nth-child(even){background-color: #f2f2f2;}
+
+#customers tr:hover {background-color: #ddd;}
+
+#customers th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #339CFF;
+  color: white;
+}
+{
   box-sizing: border-box;
 }
 
@@ -124,6 +151,73 @@ a.disabled {
   overflow:hidden;
   display: none;
 }
+/* Button used to open the contact form - fixed at the bottom of the page */
+.open-button {
+  background-color: #555;
+  color: white;
+  padding: 16px 20px;
+  border: none;
+  cursor: pointer;
+  opacity: 0.8;
+  position: fixed;
+  bottom: 23px;
+  right: 28px;
+  width: 280px;
+}
+
+/* The popup form - hidden by default */
+.form-popup {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  right: 15px;
+  border: 3px solid #f1f1f1;
+  z-index: 9;
+}
+
+/* Add styles to the form container */
+.form-container {
+  max-width: 300px;
+  padding: 10px;
+  background-color: white;
+}
+
+/* Full-width input fields */
+.form-container input[type=text], .form-container input[type=password] {
+  width: 100%;
+  padding: 15px;
+  margin: 5px 0 22px 0;
+  border: none;
+  background: #f1f1f1;
+}
+
+/* When the inputs get focus, do something */
+.form-container input[type=text]:focus, .form-container input[type=password]:focus {
+  background-color: #ddd;
+  outline: none;
+}
+
+/* Set a style for the submit/login button */
+.form-container .btn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 16px 20px;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom:10px;
+  opacity: 0.8;
+}
+
+/* Add a red background color to the cancel button */
+.form-container .cancel {
+  background-color: red;
+}
+
+/* Add some hover effects to buttons */
+.form-container .btn:hover, .open-button:hover {
+  opacity: 1;
+}
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
@@ -189,19 +283,35 @@ a.disabled {
       "'>
       Perlengkapan Non Operasional</a></li>
       <li><i class="fa fa-download	"></i> <a href="#" style="color: #000000;text-decoration:none;">Arsip</a></li>
-      <li>The Food</li>
+      <?php 
+          if($_SESSION['role']<2){
+              echo '<li><i class="fa fa-tasks	"></i> <a href="/kelola.php" style="color: #000000;text-decoration:none;">Kelola aplikasi</a></li>';
+          }
+      ?>
     </ul>
   </div>
 
   <div id ="demo" class="col-6 col-s-9">
+  <div class="table-responsive">
 	<?php 
-	   echo "reserved";
 	   
 	   $arrSektor = explode('@@',$_GET['sektor']); 
 	   
-	   $make_call2 = callAPI('POST', 'http://localhost:8080/subKategori/findall/'.$_SESSION['username'], null);
+	   $make_call2 = callAPI('POST', 'http://localhost:8080/subKategori/findbyidkategori/'.$_GET['id'].'/'.$_SESSION['username'], null);
 	   $response2 = json_decode($make_call2, true);
 	   
+	   $make_callSektor = callAPI('POST', 'http://localhost:8080/sektor/findall/'.$_SESSION['username'], null);
+	   $responseSektor = json_decode($make_callSektor, true);
+	   
+	   $dropdownSektor = '<label for="selectedSektor">Pilih Sektor</label><select name="selectedSektor" id="sektor">';
+	   
+	   for ($xy = 0; $xy < sizeof($responseSektor); $xy++){
+	       
+	       $dropdownSektor=$dropdownSektor.'<option value="'.$responseSektor[$xy]['id'].'">'.$responseSektor[$xy]['namaSektor'].'</option>';
+	   }
+	   $dropdownSektor = $dropdownSektor."</select";
+	   
+
 	   
 	   for ($i = 0; $i < sizeof($response2); $i++){
 	       echo "</p>".$response2[$i]['nama'];
@@ -209,9 +319,17 @@ a.disabled {
 	       echo '<div id="myDIV'.$i.'" style="display: none;">';
 	       $make_call3 = callAPI('POST', 'http://localhost:8080/jenis/findBySubKategori/'.$response2[$i]['id'], json_encode($arrSektor));
 	       $response3 = json_decode($make_call3, true);
-	       echo "<table><tr><th style='width:200px'>Nama</th><th>Sektor</th><th>Baik</th><th>Rusak</th></tr>";
+	       echo "<table class='table' id='customers'><tr><th style='width:200px'>Nama</th><th>Sektor</th><th>Baik</th><th>Rusak</th><th>Pindahkan</th></tr>";
 	         for ($x = 0; $x < sizeof($response3); $x++){
-	             echo "<tr><td>".$response3[$x]['nama']."</td><td>".getSektorName($response3[$x]['sektor'])."</td><td>".$response3[$x]['baik']."</td><td>".$response3[$x]['rusak']."</td></tr>";
+	             echo "<tr><td>".$response3[$x]['nama']."</td><td>".getSektorName($response3[$x]['sektor'])."</td><td>".$response3[$x]['baik']."</td><td>".$response3[$x]['rusak']."</td>";
+	             echo "<td><form action='/pindah.php' id='formpindah".$response3[$x]['id']."'/>";
+                echo '<input type="number" id="baikId" name="baik" min="0" max="'.$response3[$x]['baik'].'" placeholder="Baik" required/>';
+                echo '<input type="number" id="rusakId" name="rusak" min="0" max="'.$response3[$x]['rusak'].'" placeholder="Rusak" />';
+                echo '<input type="hidden" id="idSource" name="idSource" value="'.$response3[$x]['id'].'"/>';
+                echo '<input type="hidden" id="namaSource" name="namaSource" value="'.getSektorName($response3[$x]['sektor']).'"/>';
+                echo '<input id="submit-btnmove'.$response3[$x]['id'].'" type="submit" name="submit'.$response3[$x]['id'].'" value="AjukanPindah'.$response3[$x]['id'].'" />';
+                    echo $dropdownSektor."</form></td>";
+                echo "</tr>";
 	       };echo "</table>"; 
     echo '</div>';
 	       echo "</p>";
@@ -219,7 +337,7 @@ a.disabled {
 	   }
 	?>
 	
-	
+	</div>
   
   </div>
   <div class="col-3 col-s-12">
