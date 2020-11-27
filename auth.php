@@ -12,7 +12,7 @@ $make_call = callAPI('POST', 'http://localhost:8080/login/find', json_encode($da
 $response = json_decode($make_call, true);
 $data     = $response['role'];
 
-header("Location: http://".$_SERVER['HTTP_HOST'].'/mainmenu.php');
+header("Location: http://".$_SERVER['HTTP_HOST'].'/home.php');
 
 $_SESSION["username"] = $response['username'];
 $_SESSION["role"] = $response['role'];

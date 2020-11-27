@@ -2,19 +2,49 @@
 <?php 
 session_start();
 
-/* if( !isset($_SESSION['username']) ){
-    die( "<a href="."http://".$_SERVER['HTTP_HOST'].'/login_form/login.php'.">Login required</a>" );
-    
-    header("Location: http://".$_SERVER['HTTP_HOST'].'/login_form/login.php');
-} */
+if( !isset($_SESSION['username']) ){
+    echo "<script>alert('Login terlebih dahulu!'); window.location='login.php';</script>";
+};
+if($_SESSION['role']>1){
+    echo "<script>alert('Tidak ada akses!'); window.location='mainmenu.php';</script>";
+}
     
 ?>
 <!DOCTYPE html>
 <html>
 <head>
+<head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 <style>
-* {
+* 
+#customers {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+#customers td, #customers th {
+white-space: nowrap;
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#customers tr:nth-child(even){background-color: #f2f2f2;}
+
+#customers tr:hover {background-color: #ddd;}
+
+#customers th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #339CFF;
+  color: white;
+}
+{
   box-sizing: border-box;
 }
 
@@ -125,8 +155,6 @@ a.disabled {
   display: none;
 }
 </style>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 </head>
 <body>
 
@@ -143,6 +171,7 @@ a.disabled {
 <div class="row">
   <div class="col-3 col-s-3 menu">
     <ul>
+      <li><i class="fa fa-home	"></i> <a href="/mainmenu.php" style="color: #000000;text-decoration:none;">Beranda</a></li>
       <li> <i class="fa fa-bars"></i>
       <a href="<?php echo "/checkop.php?pilihsektor=".$_SESSION['sektor'];?>" 
       style="color: #000000;text-decoration:none;" class="<?php if($_SESSION['role']!=3){echo "disabled";}?>">Perlengkapan Operasional</a>
@@ -175,13 +204,13 @@ a.disabled {
       if($_SESSION['role']==3){
           echo "data data";
       }else{
-      echo '<form action=\"checkop.php\" method=\"post\">Pilih Sektor  <input type=\"submit\" name=\"formSubmit\" value=\"Submit\" /><br \>';
+      echo '<form action=\"checknonop.php\" method=\"post\">Pilih Sektor  <input type=\"submit\" name=\"formSubmit\" value=\"Submit\" /><br \>';
       $make_call = callAPI('POST', 'http://localhost:8080/sektor/findall/'.$_SESSION['username'], null);
       $response = json_decode($make_call, true);
       
        for ($i = 0; $i < sizeof($response); $i++){
            echo '<input type=\"checkbox\" name=\"form[]\" value=\"'.$response[$i]['id'].'@@'.$response[$i]['namaSektor'].'\" />'.$response[$i]['namaSektor'].'<br />';
-       }
+      }
       echo ''; 
       echo '</form>';
       }
@@ -189,7 +218,7 @@ a.disabled {
       ?>
       "'>
       Perlengkapan Non Operasional</a></li>
-      <li><i class="fa fa-download	"></i> <a href="#" style="color: #000000;text-decoration:none;">Arsip</a></li>
+      <li><i class="fa fa-download	"></i> <a href="/arsip.php" style="color: #000000;text-decoration:none;">Arsip</a></li>
       <?php 
           if($_SESSION['role']<2){
               echo '<li><i class="fa fa-tasks	"></i> <a href="/kelola.php" style="color: #000000;text-decoration:none;">Kelola aplikasi</a></li>';

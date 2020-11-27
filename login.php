@@ -12,8 +12,30 @@
   content: "";
   clear: both;
   display: table;
+  
 }
-
+[class="row"]{
+  /* Location of the image */
+  background-image: url(backgroundlogin2.jpg);
+  
+  /* Background image is centered vertically and horizontally at all times */
+  background-position: center center;
+  
+  /* Background image doesn't tile */
+  background-repeat: no-repeat;
+  
+  /* Background image is fixed in the viewport so that it doesn't move when 
+     the content's height is greater than the image's height */
+  background-attachment: fixed;
+  
+  /* This is what makes the background image rescale based
+     on the container's size */
+  background-size: 40%;
+  
+  /* Set a background color that will be displayed
+     while the background image is loading */
+  background-color: #464646;
+}
 [class*="col-"] {
   float: left;
   padding: 15px;
@@ -108,6 +130,28 @@ html {
   width: 5%;
   height: auto;
 }
+body {
+  /* Location of the image */
+  background-image: url(backgroundlogin2.jpg);
+  
+  /* Background image is centered vertically and horizontally at all times */
+  background-position: center center;
+  
+  /* Background image doesn't tile */
+  background-repeat: no-repeat;
+  
+  /* Background image is fixed in the viewport so that it doesn't move when 
+     the content's height is greater than the image's height */
+  background-attachment: fixed;
+  
+  /* This is what makes the background image rescale based
+     on the container's size */
+  background-size: cover;
+  
+  /* Set a background color that will be displayed
+     while the background image is loading */
+  background-color: #464646;
+}
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
@@ -116,7 +160,7 @@ html {
 <div class="header">
   <table style="width:100%">
   <tr>
-    <th style="text-align:left;"><img src="logodamkar.jpg" alt="Nature" class="responsive" width="50" height="50"> Data Sarana Dan Prasana</th>
+    <th style="text-align:left;"><img src="logodamkar.jpg" alt="Nature" class="responsive" width="50" height="50"> Data Sarana Dan Prasana<br />Sudin Penaggulangan Kebakaran Dan Penyelamatan Jakarta Barat</th>
   </tr>
 </table>
 </div>
@@ -126,7 +170,7 @@ html {
   <div class="col-3 col-s-3 menu">
   </div>
 
-  <div id ="demo" class="col-6 col-s-9" style="background-image: url('backgroundlogin.jpg');">
+  <div id ="demo" class="col-6 col-s-9" ;width=100%;heigh=auto">
     <h1><br /></h1>
     <div id="card">
     <div id="card-content">

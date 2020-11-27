@@ -2,17 +2,17 @@
 session_start();
 
 if( !isset($_SESSION['username']) ){
-    die( "<a href="."http://".$_SERVER['HTTP_HOST'].'/login_form/login.php'.">Login required</a>" );
-    
-    header("Location: http://".$_SERVER['HTTP_HOST'].'/login_form/login.php');
-}
-
+    echo "<script>alert('Login terlebih dahulu!'); window.location='login.php';</script>";
+};
+if($_SESSION['role']>1){
+    echo "<script>alert('Tidak ada akses!'); window.location='mainmenu.php';</script>";
+};
 $data_array =  array('id' => $_POST["id"], 'idKategori' => $_POST["idkategori"], 'nama' => $_POST["nama"]);
 $make_call = callAPI('POST', 'http://localhost:8080/subKategori/save/'.$_SESSION['username'], json_encode($data_array));
 $response = json_decode($make_call, true);
 
 if($response){
-    echo "<script>alert('Data berhasil ditambahkan!'); window.location='/kelolaperlengkapanoperasional.php?id=".$_GET['idkategori']."&nama=".$_GET['namakategori']."';</script>";
+    echo "<script>alert('Data berhasil ditambahkan!'); window.location='/kelolakategori.php?id=".$_GET['idkategori']."&nama=".$_GET['namakategori']."';</script>";
 }else{
     echo "<script>alert('Data gagal ditambahkan');</script>";
 }; 

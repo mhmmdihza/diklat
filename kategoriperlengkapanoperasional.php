@@ -2,11 +2,12 @@
 <?php 
 session_start();
 
-/* if( !isset($_SESSION['username']) ){
-    die( "<a href="."http://".$_SERVER['HTTP_HOST'].'/login_form/login.php'.">Login required</a>" );
-    
-    header("Location: http://".$_SERVER['HTTP_HOST'].'/login_form/login.php');
-} */
+if( !isset($_SESSION['username']) ){
+    echo "<script>alert('Login terlebih dahulu!'); window.location='login.php';</script>";
+};
+if($_SESSION['role']>1){
+    echo "<script>alert('Tidak ada akses!'); window.location='mainmenu.php';</script>";
+}
     
 ?>
 <!DOCTYPE html>
@@ -169,6 +170,7 @@ a.disabled {
 <div class="row">
   <div class="col-3 col-s-3 menu">
     <ul>
+      <li><i class="fa fa-home	"></i> <a href="/mainmenu.php" style="color: #000000;text-decoration:none;">Beranda</a></li>
       <li> <i class="fa fa-bars"></i>
       <a href="<?php echo "/checkop.php?pilihsektor=".$_SESSION['sektor'];?>" 
       style="color: #000000;text-decoration:none;" class="<?php if($_SESSION['role']!=3){echo "disabled";}?>">Perlengkapan Operasional</a>
@@ -185,7 +187,7 @@ a.disabled {
       
        for ($i = 0; $i < sizeof($response); $i++){
            echo '<input type=\"checkbox\" name=\"form[]\" value=\"'.$response[$i]['id'].'@@'.$response[$i]['namaSektor'].'\" />'.$response[$i]['namaSektor'].'<br />';
-       }
+      }
       echo ''; 
       echo '</form>';
       }
@@ -201,13 +203,13 @@ a.disabled {
       if($_SESSION['role']==3){
           echo "data data";
       }else{
-      echo '<form action=\"checkop.php\" method=\"post\">Pilih Sektor  <input type=\"submit\" name=\"formSubmit\" value=\"Submit\" /><br \>';
+      echo '<form action=\"checknonop.php\" method=\"post\">Pilih Sektor  <input type=\"submit\" name=\"formSubmit\" value=\"Submit\" /><br \>';
       $make_call = callAPI('POST', 'http://localhost:8080/sektor/findall/'.$_SESSION['username'], null);
       $response = json_decode($make_call, true);
       
        for ($i = 0; $i < sizeof($response); $i++){
            echo '<input type=\"checkbox\" name=\"form[]\" value=\"'.$response[$i]['id'].'@@'.$response[$i]['namaSektor'].'\" />'.$response[$i]['namaSektor'].'<br />';
-       }
+      }
       echo ''; 
       echo '</form>';
       }
@@ -215,7 +217,7 @@ a.disabled {
       ?>
       "'>
       Perlengkapan Non Operasional</a></li>
-      <li><i class="fa fa-download	"></i> <a href="#" style="color: #000000;text-decoration:none;">Arsip</a></li>
+      <li><i class="fa fa-download	"></i> <a href="/arsip.php" style="color: #000000;text-decoration:none;">Arsip</a></li>
       <?php 
           if($_SESSION['role']<2){
               echo '<li><i class="fa fa-tasks	"></i> <a href="/kelola.php" style="color: #000000;text-decoration:none;">Kelola aplikasi</a></li>';
@@ -225,7 +227,8 @@ a.disabled {
   </div>
 
   <div id ="demo" class="col-6 col-s-9">
-	<a href="sektorform.php" style="text-decoration:none;"><span class="fa-stack">
+  <h4>Kelola Perlengkapan Operasional</h4>
+	<a href="kategoriform.php" style="text-decoration:none;"><span class="fa-stack">
   <i class="fa fa-circle fa-stack-2x"></i>
   <i class="fa fa-plus fa-stack-1x fa-inverse"></i>
 </span> Tambah Data Baru</a>
@@ -240,7 +243,13 @@ a.disabled {
 	   
 
 	         for ($x = 0; $x < sizeof($response2); $x++){
-	             echo '<li><a href="/kelolaperlengkapanoperasional.php?id='.$response2[$x]['id'].'&nama='.$response2[$x]['nama'].'">'.$response2[$x]['nama'].'</a></li>';
+	             if($response2[$x]['menu']==1){
+	             echo '<li><a href="/kelolakategori.php?id='.$response2[$x]['id'].'&nama='.$response2[$x]['nama'].'">'.$response2[$x]['nama'].'</a>';
+	             ?>
+	             <a href="/hapuskategori.php?id=<?php echo $response2[$x]['id']; ?>" onclick = "if (! confirm('Hapus Kategori?')) { return false; }"><i class="fa fa-trash-o"></i></a>
+	             <?php 
+	             echo '</li>';
+	             }
 	             
 	       };
 	?>	</div> 

@@ -2,12 +2,11 @@
 session_start();
 
 if( !isset($_SESSION['username']) ){
-    die( "<a href="."http://".$_SERVER['HTTP_HOST'].'/login_form/login.php'.">Login required</a>" );
-    
-    header("Location: http://".$_SERVER['HTTP_HOST'].'/login_form/login.php');
+    echo "<script>alert('Login terlebih dahulu!'); window.location='login.php';</script>";
 }
-
-
+if($_SESSION['role']>1){
+    echo "<script>alert('Tidak ada akses!'); window.location='mainmenu.php';</script>";
+}
 
 
 $data_array =  array('username' => $_POST["username"], 'password' => $_POST["password"], 'sektor' => $_POST["sektor"]);
