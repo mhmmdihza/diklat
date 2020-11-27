@@ -1,0 +1,351 @@
+
+<?php 
+session_start();
+
+ if( !isset($_SESSION['username']) ){
+    echo "<script>alert('Login terlebih dahulu!'); window.location='login.php';</script>";
+};
+    
+?>
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<style>
+* 
+#customers {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+#customers td, #customers th {
+white-space: nowrap;
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#customers tr:nth-child(even){background-color: #f2f2f2;}
+
+#customers tr:hover {background-color: #ddd;}
+
+#customers th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #339CFF;
+  color: white;
+}
+{
+  box-sizing: border-box;
+}
+
+.row::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+[class*="col-"] {
+  float: left;
+  padding: 15px;
+}
+
+html {
+  font-family: "Lucida Sans", sans-serif;
+}
+
+.header {
+  background-color: #339CFF     ;
+  color: #000000;
+  padding: 10px;
+}
+.header2 {
+  background-color: #E12525     ;
+  color: #000000;
+  padding: 5px;
+}
+
+.menu ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.menu li {
+  padding: 8px;
+  margin-bottom: 7px;
+  background-color: #33b5e5;
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+
+.menu li:hover {
+  background-color: #0099cc;
+}
+
+.aside {
+  background-color: #33b5e5;
+  padding: 15px;
+  color: #ffffff;
+  text-align: center;
+  font-size: 14px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+
+.footer {
+  background-color: #0099cc;
+  color: #ffffff;
+  text-align: center;
+  font-size: 12px;
+  padding: 15px;
+}
+
+/* For mobile phones: */
+[class*="col-"] {
+  width: 100%;
+}
+
+@media only screen and (min-width: 600px) {
+  /* For tablets: */
+  .col-s-1 {width: 8.33%;}
+  .col-s-2 {width: 16.66%;}
+  .col-s-3 {width: 25%;}
+  .col-s-4 {width: 33.33%;}
+  .col-s-5 {width: 41.66%;}
+  .col-s-6 {width: 50%;}
+  .col-s-7 {width: 58.33%;}
+  .col-s-8 {width: 66.66%;}
+  .col-s-9 {width: 75%;}
+  .col-s-10 {width: 83.33%;}
+  .col-s-11 {width: 91.66%;}
+  .col-s-12 {width: 100%;}
+}
+@media only screen and (min-width: 768px) {
+  /* For desktop: */
+  .col-1 {width: 8.33%;}
+  .col-2 {width: 16.66%;}
+  .col-3 {width: 25%;}
+  .col-4 {width: 33.33%;}
+  .col-5 {width: 41.66%;}
+  .col-6 {width: 50%;}
+  .col-7 {width: 58.33%;}
+  .col-8 {width: 66.66%;}
+  .col-9 {width: 75%;}
+  .col-10 {width: 83.33%;}
+  .col-11 {width: 91.66%;}
+  .col-12 {width: 100%;}
+}
+.responsive {
+  width: 5%;
+  height: auto;
+}
+a.disabled {
+  pointer-events: none;
+  cursor: default;
+  overflow:hidden;
+  display: none;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <table style="width:100%">
+  <tr>
+    <th style="text-align:left;"><img src="logodamkar.jpg" alt="Nature" class="responsive" width="50" height="50"> Data Sarana Dan Prasana<br />Sudin Penaggulangan Kebakaran Dan Penyelamatan Jakarta Barat</th>
+    <th style="text-align:right;">Selamat Datang <?php echo $_SESSION['username'];?> <a href="/logout.php" style="color: #000000;text-decoration:none;"><i class="fa fa-sign-out"></i>Keluar</a></th> 
+  </tr>
+</table>
+</div>
+<div class="header2"></div>
+
+<div class="row">
+  <div class="col-3 col-s-3 menu">
+    <ul>
+      <li><i class="fa fa-home	"></i> <a href="/mainmenu.php" style="color: #000000;text-decoration:none;">Beranda</a></li>
+      <li> <i class="fa fa-bars"></i>
+      <a href="<?php echo "/checkop.php?pilihsektor=".$_SESSION['sektor'];?>" 
+      style="color: #000000;text-decoration:none;" class="<?php if($_SESSION['role']!=3){echo "disabled";}?>">Perlengkapan Operasional</a>
+      <a href="#" class="<?php if($_SESSION['role']==3){echo "disabled";}?>" style="color: #000000;text-decoration:none;" onclick='document.getElementById("demo").innerHTML = "<?php 
+      echo "<h1>Perlengkapan Operasional</h1>";
+      echo "<p>";
+      
+      if($_SESSION['role']==3){
+          echo "data data";
+      }else{
+      echo '<form action=\"checkop.php\" method=\"post\">Pilih Sektor  <input type=\"submit\" name=\"formSubmit\" value=\"Submit\" /><br \>';
+      $make_call = callAPI('POST', 'http://localhost:8080/sektor/findall/'.$_SESSION['username'], null);
+      $response = json_decode($make_call, true);
+      
+       for ($i = 0; $i < sizeof($response); $i++){
+           echo '<input type=\"checkbox\" name=\"form[]\" value=\"'.$response[$i]['id'].'@@'.$response[$i]['namaSektor'].'\" />'.$response[$i]['namaSektor'].'<br />';
+      }
+      echo ''; 
+      echo '</form>';
+      }
+      
+      echo "</p>";
+      ?>
+      "'>Perlengkapan Operasional</a></li>
+      <li><i class="fa fa-bars"></i> 
+      <a href="#" style="color: #000000;text-decoration:none;" onclick='document.getElementById("demo").innerHTML = "<?php 
+      echo "<h1>Perlengkapan Non Operasional</h1>";
+      echo "<p>";
+      
+      if($_SESSION['role']==3){
+          echo "data data";
+      }else{
+      echo '<form action=\"checknonop.php\" method=\"post\">Pilih Sektor  <input type=\"submit\" name=\"formSubmit\" value=\"Submit\" /><br \>';
+      $make_call = callAPI('POST', 'http://localhost:8080/sektor/findall/'.$_SESSION['username'], null);
+      $response = json_decode($make_call, true);
+      
+       for ($i = 0; $i < sizeof($response); $i++){
+           echo '<input type=\"checkbox\" name=\"form[]\" value=\"'.$response[$i]['id'].'@@'.$response[$i]['namaSektor'].'\" />'.$response[$i]['namaSektor'].'<br />';
+      }
+      echo ''; 
+      echo '</form>';
+      }
+      echo "</p>";
+      ?>
+      "'>
+      Perlengkapan Non Operasional</a></li>
+      <li><i class="fa fa-download	"></i> <a href="/arsip.php" style="color: #000000;text-decoration:none;">Arsip</a></li>
+      <?php 
+          if($_SESSION['role']<2){
+              echo '<li><i class="fa fa-tasks	"></i> <a href="/kelola.php" style="color: #000000;text-decoration:none;">Kelola aplikasi</a></li>';
+          }
+      ?>
+    </ul>
+  </div>
+
+  <div id ="demo" class="col-6 col-s-9">
+  	<?php 
+  	$aDoor;
+  	if(empty($_POST['form']) &&
+  	    !isset($_GET['pilihsektor']))
+  	{
+  	    echo "<script>alert('Centang salah satu sektor!'); window.location='/mainmenu.php';</script>";
+  	}
+  	else
+  	{
+  	    $sektorzxc;
+  	    $N;
+  	    if(empty($_POST['form'])){
+  	        $data_array =  array(
+  	            "id" => $_GET['pilihsektor']
+  	        );
+  	        $make_callSektor = callAPI('POST', 'http://localhost:8080/sektor/find', json_encode($data_array));
+  	        $responseSektor = json_decode($make_callSektor, true);
+  	        $sektorzxc=$responseSektor['namaSektor'];
+  	        $N=1;
+  	        $aDoor=array($_GET['pilihsektor']);
+  	    }else{
+  	        $aDoor = $_POST['form'];
+  	    $N = count($aDoor);
+  	    }
+  	    $sektorId = array(); 
+  	    $sektorNama = array(); 
+  	    echo "<h1>Perlengkapan Non Operasional</h1>";
+  	    echo "<p>Sektor =";
+  	    $sektor = '';
+  	    for($i=0; $i < $N; $i++)
+  	    {
+  	        
+  	        $myArray = explode('@@', $aDoor[$i]);
+  	        array_push($sektorId, $myArray[0]);
+  	        if(sizeof($myArray)>1){
+  	        array_push($sektorNama, 
+  	            $myArray[1]);
+  	        }else{
+  	            array_push($sektorNama,
+  	                $sektorzxc);
+  	            
+  	        }
+  	        /* echo($aDoor[$i] . " ");
+  	        if($i<$N-1){
+  	          echo(", ");
+  	        }; */
+  	    }
+  	    for($i=0; $i < $N; $i++)
+  	    {
+  	        echo($sektorNama[$i] . " ");
+  	        
+  	        $sektor = $sektor.$sektorId[$i];
+  	        if($i<$N-1){
+  	            echo(", ");
+  	            $sektor = $sektor.'@@';
+  	        };
+  	       /*  echo("id ".$sektorId[$i]);
+  	        echo("nama ".$sektorNama[$i]); */
+
+  	    }
+  	    echo "</p><br />";
+  	    $zxczxc = "";
+  	    $make_call2 = callAPI('POST', 'http://localhost:8080/nonkategori/findall/'.$_SESSION['username'], null);
+  	    $response2 = json_decode($make_call2, true);
+  	    
+  	    
+  	    for ($i = 0; $i < sizeof($response2); $i++){
+  	        echo "</p><a href='".$zxczxc.'/nonkategori.php?id='.$response2[$i]['id'].'&sektor='.$sektor."'>".$response2[$i]['nama']."</a>";
+  	        
+  	        echo "</p>";
+  	        //echo '<input type=\"checkbox\" name=\"form[]\" value=\"'.$response2[$i]['id'].'@@'.$response[$i]['namaSektor'].'\" />'.$response[$i]['namaSektor'].'<br />';
+  	    }
+  	}
+  	?>
+  </div>
+  <div class="col-3 col-s-12">
+  
+  </div>
+</div>
+
+<div class="footer">
+  <p>Resize the browser window to see how the content respond to the resizing.</p>
+</div>
+
+</body>
+</html>
+<?php 
+function callAPI($method, $url, $data){
+    $curl = curl_init();
+    switch ($method){
+        case "POST":
+            curl_setopt($curl, CURLOPT_POST, 1);
+            if ($data)
+                curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+                break;
+        case "PUT":
+            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
+            if ($data)
+                curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+                break;
+        default:
+            if ($data)
+                $url = sprintf("%s?%s", $url, http_build_query($data));
+    }
+    // OPTIONS:
+    curl_setopt($curl, CURLOPT_URL, $url);
+    curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+        'Key: 111111111111111111111',
+        'Content-Type: application/json',
+    ));
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+    // EXECUTE:
+    $result = curl_exec($curl);
+    if(!$result){
+        $message = "Password atau username salah";
+        echo "<script type='text/javascript'>alert('$message');</script>";
+        echo "<a href=\"javascript:history.go(-1)\">kembali ke halaman login</a>";
+        die('');
+    }
+    
+    curl_close($curl);
+    return $result;
+}
+?>
