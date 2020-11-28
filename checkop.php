@@ -196,15 +196,17 @@ a.disabled {
       echo "</p>";
       ?>
       "'>Perlengkapan Operasional</a></li>
-      <li><i class="fa fa-bars"></i> 
-      <a href="#" style="color: #000000;text-decoration:none;" onclick='document.getElementById("demo").innerHTML = "<?php 
+      <li> <i class="fa fa-bars"></i>
+      <a href="<?php echo "/checknonop.php?pilihsektor=".$_SESSION['sektor'];?>" 
+      style="color: #000000;text-decoration:none;" class="<?php if($_SESSION['role']!=3){echo "disabled";}?>">Perlengkapan Non Operasional</a>
+      <a href="#" class="<?php if($_SESSION['role']==3){echo "disabled";}?>" style="color: #000000;text-decoration:none;" onclick='document.getElementById("demo").innerHTML = "<?php 
       echo "<h1>Perlengkapan Non Operasional</h1>";
       echo "<p>";
       
       if($_SESSION['role']==3){
           echo "data data";
       }else{
-      echo '<form action=\"checknonop.php\" method=\"post\">Pilih Sektor  <input type=\"submit\" name=\"formSubmit\" value=\"Submit\" /><br \>';
+      echo '<form action=\"checkop.php\" method=\"post\">Pilih Sektor  <input type=\"submit\" name=\"formSubmit\" value=\"Submit\" /><br \>';
       $make_call = callAPI('POST', 'http://localhost:8080/sektor/findall/'.$_SESSION['username'], null);
       $response = json_decode($make_call, true);
       
@@ -214,10 +216,11 @@ a.disabled {
       echo ''; 
       echo '</form>';
       }
+      
       echo "</p>";
       ?>
-      "'>
-      Perlengkapan Non Operasional</a></li>
+      "'>Perlengkapan Non Operasional</a></li>
+      
       <li><i class="fa fa-download	"></i> <a href="/arsip.php" style="color: #000000;text-decoration:none;">Arsip</a></li>
       <?php 
           if($_SESSION['role']<2){

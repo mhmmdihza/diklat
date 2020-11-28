@@ -230,40 +230,75 @@ a.disabled {
   <div id ="demo" class="col-6 col-s-9">
 	<div class="table-responsive">
 	<?php 	   
-	if($_SESSION['role']<2){
+	if($_SESSION['role']!=2){
+	   $mamke_call2;
+	   $response2;
+	   $make_call3;
+	   $response3;
 	    
-	   $make_call2 = callAPI('POST', 'http://localhost:8080/olahstok/findbystatus/Waiting/'.$_SESSION['username'], null);
-	   $response2 = json_decode($make_call2, true);
-	   $make_call3 = callAPI('POST', 'http://localhost:8080/nonolahstok/findbystatus/Waiting/'.$_SESSION['username'], null);
-	   $response3 = json_decode($make_call3, true);
+	   if($_SESSION['role']<2){
+    	   $make_call2 = callAPI('POST', 'http://localhost:8080/olahstok/findbystatus/Waiting/'.$_SESSION['username'], null);
+    	   $response2 = json_decode($make_call2, true);
+    	   $make_call3 = callAPI('POST', 'http://localhost:8080/nonolahstok/findbystatus/Waiting/'.$_SESSION['username'], null);
+    	   $response3 = json_decode($make_call3, true);
+	   }else{
+	       $make_call2 = callAPI('POST', 'http://localhost:8080/menu/list/olah_stok/1', '{"nama_sektor_asal":"'.getSektorName($_SESSION['sektor']).'"}');
+	       $response2 = json_decode($make_call2, true);
+	       $make_call3 = callAPI('POST', 'http://localhost:8080/menu/list/nonolah_stok/1', '{"nama_sektor_asal":"'.getSektorName($_SESSION['sektor']).'"}');
+	       $response3 = json_decode($make_call3, true);
+	   }
 	   
-	   
-	   http://localhost:8080/jenis/find
 
-	       echo "<table class='table' id='customers'><tr><th>ID</th><th>Nama Barang</th><th>Sektor</th><th>Jenis Perubahan</th><th>Sektor Tujuan</th><th>Baik</th><th>Rusak</th><th>Keterangan</th><th style=\"column-width:500px;\">Aksi</th></tr>";
+	       echo "<table class='table' id='customers'><tr><th>ID</th><th>Nama Barang</th><th>Sektor</th><th>Jenis Perubahan</th><th>Sektor Tujuan</th><th>Baik</th><th>Rusak</th><th>Keterangan</th>";
+	       if($_SESSION['role']!=3){
+           echo "<th style=\"column-width:500px;\">Aksi</th></tr>";
+	       }else{
+	           echo "<th>Status</th>";
+	       }
 	         for ($x = 0; $x < sizeof($response2); $x++){
 	             $statusSend = "statustrx=1";
 	             echo "<tr>";
 	             echo "<td>".$response2[$x]['id']."</td>";
-	             echo "<td>".getNamaBarang($response2[$x]['idJenis'])[0]."</td>";
-	             echo "<td>".getSektorName(getNamaBarang($response2[$x]['idJenis'])[1])."</td>";
-	             if(isset($response2[$x]['sektorDest'])){
-	                 echo "<td>Perpindahan</td>";
-	                 echo "<td>".getSektorName($response2[$x]['sektorDest'])."</td>";
-	                 $statusSend = "statustrx=2";
+	             
+	             if($_SESSION['role']!=3){
+	                 echo "<td>".getNamaBarang($response2[$x]['idJenis'])[0]."</td>";
+	                 echo "<td>".getSektorName(getNamaBarang($response2[$x]['idJenis'])[1])."</td>";
+	                 if(isset($response2[$x]['sektorDest'])){
+	                     echo "<td>Perpindahan</td>";
+	                     echo "<td>".getSektorName($response2[$x]['sektorDest'])."</td>";
+	                     $statusSend = "statustrx=2";
+	                 }else{
+	                     echo "<td>Penambahan/Pengurangan</td>";
+	                     echo "<td></td>";
+	                 }
 	             }else{
-	                 echo "<td>Penambahan/Pengurangan</td>";
-	                 echo "<td></td>";
-	             }
+	                 echo "<td>".getNamaBarang($response2[$x]['id_jenis'])[0]."</td>";
+	                 echo "<td>".getSektorName(getNamaBarang($response2[$x]['id_jenis'])[1])."</td>";
+	                 if(isset($response2[$x]['sektor_dest'])){
+	                     echo "<td>Perpindahan</td>";
+	                     echo "<td>".getSektorName($response2[$x]['sektor_dest'])."</td>";
+	                     $statusSend = "statustrx=2";
+	                 }else{
+	                     echo "<td>Penambahan/Pengurangan</td>";
+	                     echo "<td></td>";
+	                 }
+	             };
+	             
 	             echo "<td>".$response2[$x]['baik']."</td>";
 	             echo "<td>".$response2[$x]['rusak']."</td>";   
 	             echo "<td>".$response2[$x]['reason']."</td>";
+	             if($_SESSION['role']==3){
+	                 echo "<td>".$response2[$x]['status']."</td>";
+	             }
 	             ?>
-	             <td>
+	             '<td <?php 
+	             if($_SESSION['role']==3){
+	                 echo 'hidden="true"';
+	             }?>>
 						<a href="/approval.php?<?php echo $statusSend;?>&status=Approved&id=<?php echo $response2[$x]['id']; ?>" onclick = "if (! confirm('Setujui?')) { return false; }"><i class="fa fa-check"></i>Setujui</a><br />
 						
 						<a href="#" onclick = "reject(<?php echo $response2[$x]['id'].",'".$statusSend?>')"><i class="fa fa-remove"></i>Tolak</a>	
-					</td>
+					</td>'
 	             <?php
 	             echo "</tr>";
 	             
@@ -273,21 +308,42 @@ a.disabled {
 	           $statusSend = "statustrx=1";
 	           echo "<tr>";
 	           echo "<td>".$response3[$x]['id']."</td>";
-	           echo "<td>".getNamaBarang2($response3[$x]['idJenis'])[0]."</td>";
-	           echo "<td>".getSektorName(getNamaBarang2($response3[$x]['idJenis'])[1])."</td>";
-	           if(isset($response3[$x]['sektorDest'])){
-	               echo "<td>Perpindahan</td>";
-	               echo "<td>".getSektorName($response3[$x]['sektorDest'])."</td>";
-	               $statusSend = "statustrx=2";
+	           
+	           if($_SESSION['role']!=3){
+	               echo "<td>".getNamaBarang2($response3[$x]['idJenis'])[0]."</td>";
+	               echo "<td>".getSektorName(getNamaBarang2($response3[$x]['idJenis'])[1])."</td>";
+	               if(isset($response3[$x]['sektorDest'])){
+	                   echo "<td>Perpindahan</td>";
+	                   echo "<td>".getSektorName($response3[$x]['sektorDest'])."</td>";
+	                   $statusSend = "statustrx=2";
+	               }else{
+	                   echo "<td>Penambahan/Pengurangan</td>";
+	                   echo "<td></td>";
+	               }
 	           }else{
-	               echo "<td>Penambahan/Pengurangan</td>";
-	               echo "<td></td>";
-	           }
+	               echo "<td>".getNamaBarang2($response3[$x]['id_jenis'])[0]."</td>";
+	               echo "<td>".getSektorName(getNamaBarang2($response3[$x]['id_jenis'])[1])."</td>";
+	               if(isset($response3[$x]['sektor_dest'])){
+	                   echo "<td>Perpindahan</td>";
+	                   echo "<td>".getSektorName($response3[$x]['sektor_dest'])."</td>";
+	                   $statusSend = "statustrx=2";
+	               }else{
+	                   echo "<td>Penambahan/Pengurangan</td>";
+	                   echo "<td></td>";
+	               }
+	           };
+	           
 	           echo "<td>".$response3[$x]['baik']."</td>";
 	           echo "<td>".$response3[$x]['rusak']."</td>";
 	           echo "<td>".$response3[$x]['reason']."</td>";
+	           if($_SESSION['role']==3){
+	               echo "<td>".$response3[$x]['status']."</td>";
+	           }
 	           ?>
-	             <td>
+	             <td <?php 
+	             if($_SESSION['role']==3){
+	                 echo 'hidden="true"';
+	             }?>>
 						<a href="/approvalnon.php?<?php echo $statusSend;?>&status=Approved&id=<?php echo $response3[$x]['id']; ?>" onclick = "if (! confirm('Setujui?')) { return false; }"><i class="fa fa-check"></i>Setujui</a><br />
 						
 						<a href="#" onclick = "reject2(<?php echo $response3[$x]['id'].",'".$statusSend?>')"><i class="fa fa-remove"></i>Tolak</a>	

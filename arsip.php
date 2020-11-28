@@ -1,11 +1,29 @@
-
 <?php 
 session_start();
 
  if( !isset($_SESSION['username']) ){
     echo "<script>alert('Login terlebih dahulu!'); window.location='login.php';</script>";
 };
-
+$fnama ="";
+$ftype="";
+$fstatus="";
+$ftglpengajuan="";
+$ftglpersetujuan="";
+if(isset($_GET['nama'])){
+    $fnama = $_GET['nama'];
+};
+if(isset($_GET['type'])){
+    $ftype = $_GET['type'];
+};
+if(isset($_GET['status'])){
+    $fstatus = $_GET['status'];
+};
+if(isset($_GET['tglpengajuan'])){
+    $ftglpengajuan = $_GET['tglpengajuan'];
+};if(isset($_GET['tglpersetujuan'])){
+    $ftglpersetujuan = $_GET['tglpersetujuan'];
+};
+$filterc = "nama=".$fnama.'&type='.$ftype.'&status='.$fstatus.'&tglpengajuan='.$ftglpengajuan.'&tglpersetujuan='.$ftglpersetujuan;
 ?>
 <!DOCTYPE html>
 <html>
@@ -15,7 +33,7 @@ if(!isset($_GET['id'])||!isset($_GET['page'])||empty($_GET['page'])||empty($_GET
     echo '<meta http-equiv="refresh" content="0; URL=arsip.php?id=olah_stok&page=1" />';
 }else{
     $make_hal = callAPI('POST', 'http://localhost:8080/menu/countpage/olah_stok', "{}");
- 
+    $make_hal2 = callAPI('POST', 'http://localhost:8080/menu/countpage/nonolah_stok', "{}");
 }
 ?>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -233,45 +251,157 @@ a.disabled {
 
   <div id ="demo" class="col-6 col-s-9">
   <div class="table-responsive">
+  <b>Perlengkapan Operasional</b>
   <?php
-  $stringjs = "{}";
+  $data_array =  array('nama_barang' => $fnama,'status' => $fstatus ,'created_date' =>$ftglpengajuan, 'nama_sektor_asal'=>$ftype);
+  $stringjs = json_encode($data_array);
+  $make_call;
+  $strQ = "";
   if($_SESSION['role']==3){
-      $stringjs = '{"sektor" : "'.$_SESSION['sektor'].'"}';
-  }
-  $make_call = callAPI('POST', 'http://localhost:8080/menu/list/'.$_GET['id'].'/'.$_GET['page'], $stringjs);
+      $strQ = 'olah_stok%20o%20INNER%20JOIN%20jenis%20j%20ON%20o.id_jenis=j.id%20where%20j.sektor='.$_SESSION['sektor'];
+      $make_call = callAPI('POST', 'http://localhost:8080/menu/list/'.$strQ.'/'.$_GET['page'], $stringjs);
+  }else{
+      $make_call = callAPI('POST', 'http://localhost:8080/menu/list/'.$_GET['id'].'/'.$_GET['page'], $stringjs);
+  }  
   $response = json_decode($make_call, true);
+  ?>
+    <table class='table' id='filter'>
+  <tr>
+  <td style="width:160px"><label for="nama_barang">Nama Barang</label></td>
+  <td>:<input type="text" id="nama_barang" name="nama_barang"></td>
+  </tr>
+  <tr>
+  <td style="width:160px"><label for="Status">Nama Barang</label></td>
+  <td>:<input type="text" id="status" name="status"></td>
+  </tr>
+  <tr>
+  <td style="width:160px"><label for="created_date">Tanggal Pengajuan</label></td>
+  <td>:<input type="text" id="created_date" name="created_date"></td>
+  </tr>
+  <tr>
+  <td style="width:160px"><label for="nama_sektor_asal">Nama Sektor Pengaju</label></td>
+  <td>:<input type="text" id="nama_sektor_asal" name="nama_sektor_asal"></td>
+  </tr>
   
-  echo "<table class='table' id='customers'><tr><th>ID</th><th>Nama Barang</th><th>Sektor</th><th>Hapus/Ubah</th><th>Baik</th><th>Rusak</th><th>Keterangan</th><th>Status</th><th>Alasan ditolak(jika ada)</th><th>Tanggal Pengajuan</th><th>Tanggal Persetujuan/penolakan</th></tr>";
+  <?php
+  echo "<table class='table' id='customers'><tr><th>ID</th><th>Nama Barang</th><th>Sektor</th><th>Type</th><th>Baik</th><th>Rusak</th><th>Keterangan</th><th>Status</th><th>Alasan ditolak(jika ada)</th><th>Tanggal Pengajuan</th><th>Tanggal Persetujuan/penolakan</th></tr>";
   for($c = 0 ; $c <sizeof($response);$c++){
       echo "<tr>";
       echo "<td>";
       echo $response[$c]['id'];
       echo "</td>";
-      echo "<td>";
-      echo getNamaBarang($response[$c]['id_jenis'])[0];
-      echo "</td>";
-      echo "<td>".getSektorName(getNamaBarang($response[$c]['id_jenis'])[1])."</td>";
-      if(isset($response[$c]['sektorDest'])){
-          echo "<td>Perpindahan ke ".getSektorName($response[$c]['sektorDest'])."</td>";
-          echo "<td>".getSektorName($response[$c]['sektor_dest'])."</td>";
+      if($_SESSION['role']!=3){
+          echo "<td>";
+          echo getNamaBarang($response[$c]['id_jenis'])[0];
+          echo "</td>";
+          echo "<td>".getSektorName(getNamaBarang($response[$c]['id_jenis'])[1])."</td>";
+          if(isset($response[$c]['sektorDest'])){
+              echo "<td>Perpindahan ke ".getSektorName($response[$c]['sektorDest'])."</td>";
+              echo "<td>".getSektorName($response[$c]['sektor_dest'])."</td>";
+          }else{
+              echo "<td>Penambahan/Pengurangan</td>";
+              echo "<td>".$response[$c]['baik']."</td>";
+              echo "<td>".$response[$c]['rusak']."</td>";
+              echo "<td>".$response[$c]['reason']."</td>";
+              echo "<td>".$response[$c]['status']."</td>";
+              echo "<td>".$response[$c]['rejected_reason']."</td>";
+              echo "<td>".$response[$c]['created_date']."</td>";
+              echo "<td>".$response[$c]['updated_date']."</td>";
+          }
       }else{
-          echo "<td>Penambahan/Pengurangan</td>";
-          echo "<td>".$response[$c]['baik']."</td>";
-          echo "<td>".$response[$c]['rusak']."</td>";
-          echo "<td>".$response[$c]['reason']."</td>";
-          echo "<td>".$response[$c]['status']."</td>";
-          echo "<td>".$response[$c]['rejected_reason']."</td>";
-          echo "<td>".$response[$c]['created_date']."</td>";
-          echo "<td>".$response[$c]['updated_date']."</td>";
+          echo "<td>";
+          echo getNamaBarang($response[$c]['idJenis'])[0];
+          echo "</td>";
+          echo "<td>".getSektorName(getNamaBarang($response[$c]['idJenis'])[1])."</td>";
+          if(isset($response[$c]['sektorDest'])){
+              echo "<td>Perpindahan ke ".getSektorName($response[$c]['sektorDest'])."</td>";
+              echo "<td>".getSektorName($response[$c]['sektorDest'])."</td>";
+          }else{
+              echo "<td>Penambahan/Pengurangan</td>";
+              echo "<td>".$response[$c]['baik']."</td>";
+              echo "<td>".$response[$c]['rusak']."</td>";
+              echo "<td>".$response[$c]['reason']."</td>";
+              echo "<td>".$response[$c]['status']."</td>";
+              echo "<td>".$response[$c]['rejectedReason']."</td>";
+              echo "<td>".$response[$c]['createdDate']."</td>";
+              echo "<td>".$response[$c]['updatedDate']."</td>";
+          }
+      }
+      echo "</tr>";
+  }
+  echo "</tr>";
+  ?>
+
+
+  <?php
+  echo "</table>"; 
+  
+  //BATAS OPERASIONAL DAN NON OPERASIONAL
+  echo "<b>Perlengkapan Non Operasional</b>";
+  if($_SESSION['role']==3){
+      $strQ = 'olah_stok%20o%20INNER%20JOIN%20jenis%20j%20ON%20o.id_jenis=j.id%20where%20j.sektor='.$_SESSION['sektor'];
+      $make_call = callAPI('POST', 'http://localhost:8080/menu/list/non'.$strQ.'/'.$_GET['page'], $stringjs);
+  }else{
+      $make_call = callAPI('POST', 'http://localhost:8080/menu/list/non'.$_GET['id'].'/'.$_GET['page'], $stringjs);
+  }
+  $response = json_decode($make_call, true);
+  
+  echo "<table class='table' id='customers'><tr><th>ID</th><th>Nama Barang</th><th>Sektor</th><th>Type</th><th>Baik</th><th>Rusak</th><th>Keterangan</th><th>Status</th><th>Alasan ditolak(jika ada)</th><th>Tanggal Pengajuan</th><th>Tanggal Persetujuan/penolakan</th></tr>";
+  for($c = 0 ; $c <sizeof($response);$c++){
+      echo "<tr>";
+      echo "<td>";
+      echo $response[$c]['id'];
+      echo "</td>";
+      if($_SESSION['role']!=3){
+          echo "<td>";
+          echo getNamaBarang2($response[$c]['id_jenis'])[0];
+          echo "</td>";
+          echo "<td>".getSektorName(getNamaBarang2($response[$c]['id_jenis'])[1])."</td>";
+          if(isset($response[$c]['sektorDest'])){
+              echo "<td>Perpindahan ke ".getSektorName($response[$c]['sektorDest'])."</td>";
+              echo "<td>".getSektorName($response[$c]['sektor_dest'])."</td>";
+          }else{
+              echo "<td>Penambahan/Pengurangan</td>";
+              echo "<td>".$response[$c]['baik']."</td>";
+              echo "<td>".$response[$c]['rusak']."</td>";
+              echo "<td>".$response[$c]['reason']."</td>";
+              echo "<td>".$response[$c]['status']."</td>";
+              echo "<td>".$response[$c]['rejected_reason']."</td>";
+              echo "<td>".$response[$c]['created_date']."</td>";
+              echo "<td>".$response[$c]['updated_date']."</td>";
+          }
+      }else{
+          echo "<td>";
+          echo getNamaBarang2($response[$c]['idJenis'])[0];
+          echo "</td>";
+          echo "<td>".getSektorName(getNamaBarang2($response[$c]['idJenis'])[1])."</td>";
+          if(isset($response[$c]['sektorDest'])){
+              echo "<td>Perpindahan ke ".getSektorName($response[$c]['sektorDest'])."</td>";
+              echo "<td>".getSektorName($response[$c]['sektorDest'])."</td>";
+          }else{
+              echo "<td>Penambahan/Pengurangan</td>";
+              echo "<td>".$response[$c]['baik']."</td>";
+              echo "<td>".$response[$c]['rusak']."</td>";
+              echo "<td>".$response[$c]['reason']."</td>";
+              echo "<td>".$response[$c]['status']."</td>";
+              echo "<td>".$response[$c]['rejectedReason']."</td>";
+              echo "<td>".$response[$c]['createdDate']."</td>";
+              echo "<td>".$response[$c]['updatedDate']."</td>";
+          }
       }
       echo "</tr>";
   }
   echo "</tr>";
   echo "</table>"; 
-  
-  $halaman = json_decode($make_hal, true);
+  $halaman;
+  if(json_decode($make_hal, true)>json_decode($make_hal2, true)){
+      $halaman = json_decode($make_hal, true);
+  }else{
+      $halaman = json_decode($make_hal2, true);
+  }
+  echo "<b>Halaman</b>";
   for ($i=1; $i<=$halaman ; $i++){ ?>
-  <a href="/arsip.php?page=<?php echo $i.'&id='.$_GET['id'].'&'; ?>"><?php echo $i; ?></a>
+  <a href="/arsip.php?page=<?php echo $i.'&id='.$_GET['id'].'&'.$filterc; ?>"><?php echo $i; ?></a>
  
   <?php } ?>
   </div>
