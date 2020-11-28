@@ -271,6 +271,7 @@ a.disabled {
   <td>:<input type="text" id="fnama_barang" name="nama_barang" value="<?php echo $fnama?>"></td>
   </tr>
   <tr>
+  <form method="post" action="downloadreport.php" class="form">
   <td style="width:160px"><label for="Status">Status</label></td>
   <td>:<select style="width:180px" name="status" id="fstatus" value="<?php echo $fstatus?>">
   <option value="">Pilih Status</option>
@@ -294,10 +295,14 @@ a.disabled {
   <tr>
   <td style="width:160px"><label for="nama_sektor_asal">Nama Sektor Pengaju</label></td>
   <td>:<input type="text" id="fnama_sektor_asal" name="nama_sektor_asal" value="<?php echo $ftglpersetujuan?>"></td>
-  </tr>
+  </tr> 
   <?php 
   };
   ?>
+    <tr>
+  <td><input id="submit-btnreport" type="submit" name="submit" value="download" /></td>
+  </tr>
+  </form>
   </table><b>Perlengkapan Operasional</b>
   <?php
   echo "<table class='table' id='customers'><tr><th>ID</th><th>Nama Barang</th><th>Sektor</th><th>Type</th><th>Baik</th><th>Rusak</th><th>Keterangan</th><th>Status</th><th>Alasan ditolak(jika ada)</th><th>Tanggal Pengajuan</th><th>Tanggal Persetujuan/penolakan</th></tr>";
@@ -311,11 +316,11 @@ a.disabled {
           echo getNamaBarang($response[$c]['id_jenis'])[0];
           echo "</td>";
           echo "<td>".getSektorName(getNamaBarang($response[$c]['id_jenis'])[1])."</td>";
-          if(isset($response[$c]['sektorDest'])){
-              echo "<td>Perpindahan ke ".getSektorName($response[$c]['sektorDest'])."</td>";
-              echo "<td>".getSektorName($response[$c]['sektor_dest'])."</td>";
+          if(isset($response[$c]['sektor_dest'])&&!empty($response[$c]['sektor_dest'])){
+              echo "<td>Perpindahan ke ".getSektorName($response[$c]['sektor_dest'])."</td>";
           }else{
               echo "<td>Penambahan/Pengurangan</td>";
+          }
               echo "<td>".$response[$c]['baik']."</td>";
               echo "<td>".$response[$c]['rusak']."</td>";
               echo "<td>".$response[$c]['reason']."</td>";
@@ -323,17 +328,17 @@ a.disabled {
               echo "<td>".$response[$c]['rejected_reason']."</td>";
               echo "<td>".$response[$c]['created_date']."</td>";
               echo "<td>".$response[$c]['updated_date']."</td>";
-          }
+          
       }else{
           echo "<td>";
           echo getNamaBarang($response[$c]['id_jenis'])[0];
           echo "</td>";
           echo "<td>".getSektorName(getNamaBarang($response[$c]['id_jenis'])[1])."</td>";
-          if(isset($response[$c]['sektorDest'])){
-              echo "<td>Perpindahan ke ".getSektorName($response[$c]['sektorDest'])."</td>";
-              echo "<td>".getSektorName($response[$c]['sektorDest'])."</td>";
+          if(isset($response[$c]['sektor_dest'])&&!empty($response[$c]['sektor_dest'])){
+              echo "<td>Perpindahan ke ".getSektorName($response[$c]['sektor_dest'])."</td>";
           }else{
               echo "<td>Penambahan/Pengurangan</td>";
+          }
               echo "<td>".$response[$c]['baik']."</td>";
               echo "<td>".$response[$c]['rusak']."</td>";
               echo "<td>".$response[$c]['reason']."</td>";
@@ -341,7 +346,7 @@ a.disabled {
               echo "<td>".$response[$c]['rejected_reason']."</td>";
               echo "<td>".$response[$c]['created_date']."</td>";
               echo "<td>".$response[$c]['updated_date']."</td>";
-          }
+          
       }
       echo "</tr>";
   }
@@ -372,11 +377,11 @@ a.disabled {
           echo getNamaBarang2($response[$c]['id_jenis'])[0];
           echo "</td>";
           echo "<td>".getSektorName(getNamaBarang2($response[$c]['id_jenis'])[1])."</td>";
-          if(isset($response[$c]['sektorDest'])){
-              echo "<td>Perpindahan ke ".getSektorName($response[$c]['sektorDest'])."</td>";
-              echo "<td>".getSektorName($response[$c]['sektor_dest'])."</td>";
+          if(isset($response[$c]['sektor_dest'])&&!empty($response[$c]['sektor_dest'])){
+              echo "<td>Perpindahan ke ".getSektorName($response[$c]['sektor_dest'])."</td>";
           }else{
               echo "<td>Penambahan/Pengurangan</td>";
+          }
               echo "<td>".$response[$c]['baik']."</td>";
               echo "<td>".$response[$c]['rusak']."</td>";
               echo "<td>".$response[$c]['reason']."</td>";
@@ -384,17 +389,17 @@ a.disabled {
               echo "<td>".$response[$c]['rejected_reason']."</td>";
               echo "<td>".$response[$c]['created_date']."</td>";
               echo "<td>".$response[$c]['updated_date']."</td>";
-          }
+          
       }else{
           echo "<td>";
           echo getNamaBarang2($response[$c]['id_jenis'])[0];
           echo "</td>";
           echo "<td>".getSektorName(getNamaBarang2($response[$c]['id_jenis'])[1])."</td>";
-          if(isset($response[$c]['sektorDest'])){
-              echo "<td>Perpindahan ke ".getSektorName($response[$c]['sektorDest'])."</td>";
-              echo "<td>".getSektorName($response[$c]['sektorDest'])."</td>";
+          if(isset($response[$c]['sektor_dest'])&&!empty($response[$c]['sektor_dest'])){
+              echo "<td>Perpindahan ke ".getSektorName($response[$c]['sektor_dest'])."</td>";
           }else{
               echo "<td>Penambahan/Pengurangan</td>";
+          }
               echo "<td>".$response[$c]['baik']."</td>";
               echo "<td>".$response[$c]['rusak']."</td>";
               echo "<td>".$response[$c]['reason']."</td>";
@@ -402,7 +407,7 @@ a.disabled {
               echo "<td>".$response[$c]['rejected_reason']."</td>";
               echo "<td>".$response[$c]['created_date']."</td>";
               echo "<td>".$response[$c]['updated_date']."</td>";
-          }
+          
       }
       echo "</tr>";
   }
