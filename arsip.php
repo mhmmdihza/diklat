@@ -20,16 +20,16 @@ if(isset($_GET['status'])){
 };
 if(isset($_GET['tglpengajuan'])){
     $ftglpengajuan = $_GET['tglpengajuan'];
-};if(isset($_GET['tglpersetujuan'])){
-    $ftglpersetujuan = $_GET['tglpersetujuan'];
+};if(isset($_GET['namasektorpengaju'])){
+    $ftglpersetujuan = $_GET['namasektorpengaju'];
 };
-$filterc = "nama=".$fnama.'&type='.$ftype.'&status='.$fstatus.'&tglpengajuan='.$ftglpengajuan.'&tglpersetujuan='.$ftglpersetujuan;
+$filterc = "nama=".$fnama.'&type='.$ftype.'&status='.$fstatus.'&tglpengajuan='.$ftglpengajuan.'&namasektorpengaju='.$ftglpersetujuan;
 ?>
 <!DOCTYPE html>
 <html>
 <head>
 <?php 
-if(!isset($_GET['id'])||!isset($_GET['page'])||empty($_GET['page'])||empty($_GET['id'])){
+if(!isset($_GET['id'])&&!isset($_GET['page'])&&empty($_GET['page'])&&empty($_GET['id'])){
     echo '<meta http-equiv="refresh" content="0; URL=arsip.php?id=olah_stok&page=1" />';
 }else{
     $make_hal = callAPI('POST', 'http://localhost:8080/menu/countpage/olah_stok', "{}");
@@ -251,15 +251,15 @@ a.disabled {
 
   <div id ="demo" class="col-6 col-s-9">
   <div class="table-responsive">
-  <b>Perlengkapan Operasional</b>
   <?php
-  $data_array =  array('nama_barang' => $fnama,'status' => $fstatus ,'created_date' =>$ftglpengajuan, 'nama_sektor_asal'=>$ftype);
+  if($_SESSION['role']==3){
+      $ftglpersetujuan = getSektorName($_SESSION['sektor']);
+  }
+  $data_array =  array('nama_barang' => $fnama,'status' => $fstatus ,'created_date' =>$ftglpengajuan, 'nama_sektor_asal'=>$ftglpersetujuan);
   $stringjs = json_encode($data_array);
   $make_call;
-  $strQ = "";
   if($_SESSION['role']==3){
-      $strQ = 'olah_stok%20o%20INNER%20JOIN%20jenis%20j%20ON%20o.id_jenis=j.id%20where%20j.sektor='.$_SESSION['sektor'];
-      $make_call = callAPI('POST', 'http://localhost:8080/menu/list/'.$strQ.'/'.$_GET['page'], $stringjs);
+      $make_call = callAPI('POST', 'http://localhost:8080/menu/list/'.$_GET['id'].'/'.$_GET['page'], $stringjs);
   }else{
       $make_call = callAPI('POST', 'http://localhost:8080/menu/list/'.$_GET['id'].'/'.$_GET['page'], $stringjs);
   }  
@@ -268,21 +268,37 @@ a.disabled {
     <table class='table' id='filter'>
   <tr>
   <td style="width:160px"><label for="nama_barang">Nama Barang</label></td>
-  <td>:<input type="text" id="nama_barang" name="nama_barang"></td>
+  <td>:<input type="text" id="fnama_barang" name="nama_barang" value="<?php echo $fnama?>"></td>
   </tr>
   <tr>
-  <td style="width:160px"><label for="Status">Nama Barang</label></td>
-  <td>:<input type="text" id="status" name="status"></td>
+  <td style="width:160px"><label for="Status">Status</label></td>
+  <td>:<select style="width:180px" name="status" id="fstatus" value="<?php echo $fstatus?>">
+  <option value="">Pilih Status</option>
+  <option value="Waiting" <?php if($fstatus=='Waiting'){
+      echo 'selected';
+  }?>>Waiting</option>
+  <option value="Approved" <?php if($fstatus=='Approved'){
+      echo 'selected';
+  }?>>Approved</option>
+  <option value="Rejected" <?php if($fstatus=='Rejected'){
+      echo 'selected';
+  }?>>Rejected</option>
+</select>
+  </td>
   </tr>
   <tr>
   <td style="width:160px"><label for="created_date">Tanggal Pengajuan</label></td>
-  <td>:<input type="text" id="created_date" name="created_date"></td>
+  <td>:<input type="date" id="fcreated_date" name="created_date" value="<?php echo $ftglpengajuan?>"></td>
   </tr>
+  <?php if($_SESSION['role']<3){ ?>
   <tr>
   <td style="width:160px"><label for="nama_sektor_asal">Nama Sektor Pengaju</label></td>
-  <td>:<input type="text" id="nama_sektor_asal" name="nama_sektor_asal"></td>
+  <td>:<input type="text" id="fnama_sektor_asal" name="nama_sektor_asal" value="<?php echo $ftglpersetujuan?>"></td>
   </tr>
-  
+  <?php 
+  };
+  ?>
+  </table><b>Perlengkapan Operasional</b>
   <?php
   echo "<table class='table' id='customers'><tr><th>ID</th><th>Nama Barang</th><th>Sektor</th><th>Type</th><th>Baik</th><th>Rusak</th><th>Keterangan</th><th>Status</th><th>Alasan ditolak(jika ada)</th><th>Tanggal Pengajuan</th><th>Tanggal Persetujuan/penolakan</th></tr>";
   for($c = 0 ; $c <sizeof($response);$c++){
@@ -310,9 +326,9 @@ a.disabled {
           }
       }else{
           echo "<td>";
-          echo getNamaBarang($response[$c]['idJenis'])[0];
+          echo getNamaBarang($response[$c]['id_jenis'])[0];
           echo "</td>";
-          echo "<td>".getSektorName(getNamaBarang($response[$c]['idJenis'])[1])."</td>";
+          echo "<td>".getSektorName(getNamaBarang($response[$c]['id_jenis'])[1])."</td>";
           if(isset($response[$c]['sektorDest'])){
               echo "<td>Perpindahan ke ".getSektorName($response[$c]['sektorDest'])."</td>";
               echo "<td>".getSektorName($response[$c]['sektorDest'])."</td>";
@@ -322,9 +338,9 @@ a.disabled {
               echo "<td>".$response[$c]['rusak']."</td>";
               echo "<td>".$response[$c]['reason']."</td>";
               echo "<td>".$response[$c]['status']."</td>";
-              echo "<td>".$response[$c]['rejectedReason']."</td>";
-              echo "<td>".$response[$c]['createdDate']."</td>";
-              echo "<td>".$response[$c]['updatedDate']."</td>";
+              echo "<td>".$response[$c]['rejected_reason']."</td>";
+              echo "<td>".$response[$c]['created_date']."</td>";
+              echo "<td>".$response[$c]['updated_date']."</td>";
           }
       }
       echo "</tr>";
@@ -339,8 +355,7 @@ a.disabled {
   //BATAS OPERASIONAL DAN NON OPERASIONAL
   echo "<b>Perlengkapan Non Operasional</b>";
   if($_SESSION['role']==3){
-      $strQ = 'olah_stok%20o%20INNER%20JOIN%20jenis%20j%20ON%20o.id_jenis=j.id%20where%20j.sektor='.$_SESSION['sektor'];
-      $make_call = callAPI('POST', 'http://localhost:8080/menu/list/non'.$strQ.'/'.$_GET['page'], $stringjs);
+      $make_call = callAPI('POST', 'http://localhost:8080/menu/list/non'.$_GET['id'].'/'.$_GET['page'], $stringjs);
   }else{
       $make_call = callAPI('POST', 'http://localhost:8080/menu/list/non'.$_GET['id'].'/'.$_GET['page'], $stringjs);
   }
@@ -372,9 +387,9 @@ a.disabled {
           }
       }else{
           echo "<td>";
-          echo getNamaBarang2($response[$c]['idJenis'])[0];
+          echo getNamaBarang2($response[$c]['id_jenis'])[0];
           echo "</td>";
-          echo "<td>".getSektorName(getNamaBarang2($response[$c]['idJenis'])[1])."</td>";
+          echo "<td>".getSektorName(getNamaBarang2($response[$c]['id_jenis'])[1])."</td>";
           if(isset($response[$c]['sektorDest'])){
               echo "<td>Perpindahan ke ".getSektorName($response[$c]['sektorDest'])."</td>";
               echo "<td>".getSektorName($response[$c]['sektorDest'])."</td>";
@@ -384,9 +399,9 @@ a.disabled {
               echo "<td>".$response[$c]['rusak']."</td>";
               echo "<td>".$response[$c]['reason']."</td>";
               echo "<td>".$response[$c]['status']."</td>";
-              echo "<td>".$response[$c]['rejectedReason']."</td>";
-              echo "<td>".$response[$c]['createdDate']."</td>";
-              echo "<td>".$response[$c]['updatedDate']."</td>";
+              echo "<td>".$response[$c]['rejected_reason']."</td>";
+              echo "<td>".$response[$c]['created_date']."</td>";
+              echo "<td>".$response[$c]['updated_date']."</td>";
           }
       }
       echo "</tr>";
@@ -415,6 +430,63 @@ a.disabled {
   <p>Resize the browser window to see how the content respond to the resizing.</p>
 </div>
 
+<script>
+function filterzz(){
+	var x = document.getElementById('fnama_barang').value;
+	window.location.href = 'arsip.php?id=<?php echo $_GET['id'].'&page='.$_GET['page'].'&nama='?>'+x;
+}
+</script>
+<script>
+;(function($){
+    $.fn.extend({
+        donetyping: function(callback,timeout){
+            timeout = timeout || 1e3; // 1 second default timeout
+            var timeoutReference,
+                doneTyping = function(el){
+                    if (!timeoutReference) return;
+                    timeoutReference = null;
+                    callback.call(el);
+                };
+            return this.each(function(i,el){
+                var $el = $(el);
+                // Chrome Fix (Use keyup over keypress to detect backspace)
+                // thank you @palerdot
+                $el.is(':input') && $el.on('keyup keypress paste',function(e){
+                    // This catches the backspace button in chrome, but also prevents
+                    // the event from triggering too preemptively. Without this line,
+                    // using tab/shift+tab will make the focused element fire the callback.
+                    if (e.type=='keyup' && e.keyCode!=8) return;
+                    
+                    // Check if timeout has been set. If it has, "reset" the clock and
+                    // start over again.
+                    if (timeoutReference) clearTimeout(timeoutReference);
+                    timeoutReference = setTimeout(function(){
+                        // if we made it here, our timeout has elapsed. Fire the
+                        // callback
+                        doneTyping(el);
+                    }, timeout);
+                }).on('blur',function(){
+                    // If we can, fire the event since we're leaving the field
+                    doneTyping(el);
+                });
+            });
+        }
+    });
+})(jQuery);
+
+$('#fnama_barang').donetyping(function(){
+  window.location.replace('arsip.php?id=olah_stok&page=<?php echo $_GET['page']."&nama="?>'+$('#fnama_barang').val()+'&status='+$('#fstatus').val()+'&namasektorpengaju='+$('#fnama_sektor_asal').val()+'&tglpengajuan='+$('#fcreated_date').val());
+});
+$('#fnama_sektor_asal').donetyping(function(){
+  window.location.replace('arsip.php?id=olah_stok&page=<?php echo $_GET['page']."&nama="?>'+$('#fnama_barang').val()+'&status='+$('#fstatus').val()+'&namasektorpengaju='+$('#fnama_sektor_asal').val()+'&tglpengajuan='+$('#fcreated_date').val());
+});
+$('#fstatus').change(function(){
+  window.location.replace('arsip.php?id=olah_stok&page=<?php echo $_GET['page']."&nama="?>'+$('#fnama_barang').val()+'&status='+$('#fstatus').val()+'&namasektorpengaju='+$('#fnama_sektor_asal').val()+'&tglpengajuan='+$('#fcreated_date').val());
+});
+$('#fcreated_date').change(function(){
+  window.location.replace('arsip.php?id=olah_stok&page=<?php echo $_GET['page']."&nama="?>'+$('#fnama_barang').val()+'&status='+$('#fstatus').val()+'&namasektorpengaju='+$('#fnama_sektor_asal').val()+'&tglpengajuan='+$('#fcreated_date').val());
+});
+</script>
 </body>
 </html>
 <?php 
