@@ -238,7 +238,7 @@ a.disabled {
       ?>
       "'>
       Perlengkapan Non Operasional</a></li>
-      <li><i class="fa fa-download	"></i> <a href="/arsipsektor.php" style="color: #000000;text-decoration:none;">Arsip</a></li>
+      <li><i class="fa fa-download	"></i> <a href="/arsip.php" style="color: #000000;text-decoration:none;">Arsip</a></li>
       <?php 
           if($_SESSION['role']<2){
               echo '<li><i class="fa fa-tasks	"></i> <a href="/kelola.php" style="color: #000000;text-decoration:none;">Kelola aplikasi</a></li>';
