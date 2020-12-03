@@ -27,8 +27,17 @@ if(isset($_POST['created_date'])){
 $data_array =  array('nama_barang' => $fnama,'status' => $fstatus ,'created_date' =>$ftglpengajuan, 'nama_sektor_asal'=>$namasektorpengaju);
 $stringjs = json_encode($data_array);
 
-$make_hal = callAPI('POST', 'http://localhost:8080/menu/countpage/olah_stok', $stringjs);
-$make_hal2 = callAPI('POST', 'http://localhost:8080/menu/countpage/nonolah_stok', $stringjs);
+
+
+if($_SESSION['role']==3){
+    $data_array =  array('nama_barang' => $fnama);
+    $stringjs = json_encode($data_array);
+    $make_hal = callAPI('POST', 'http://localhost:8080/staff/countpage/'.$_SESSION['sektor'], $stringjs);
+}else{
+    $make_hal = callAPI('POST', 'http://localhost:8080/menu/countpage/olah_stok', $stringjs);
+    $make_hal2 = callAPI('POST', 'http://localhost:8080/menu/countpage/nonolah_stok', $stringjs);
+}
+
 
 $spreadsheet = new PhpOffice\PhpSpreadsheet\Spreadsheet();
 $spreadsheet->getProperties();
@@ -46,6 +55,32 @@ $sheet->setCellValue('I1', 'Alasan Ditolak');
 $sheet->setCellValue('J1', 'Tanggal Pengajuan');
 $sheet->setCellValue('K1', 'Tanggal Persetujuan');
 
+if($_SESSION['role']==3){
+    $xy=2;
+    for($i = 1 ; $i<=$make_hal;$i++){
+        $make_call1 = callAPI('POST', 'http://localhost:8080/staff/list/'.$i.'/'.$_SESSION['sektor'], $stringjs);
+        $response1 = json_decode($make_call1, true);
+        for($c = 0 ; $c <sizeof($response1);$c++){
+            $sheet->setCellValue('A'.$xy, $response1[$c]['id']);
+            $sheet->setCellValue('B'.$xy, getNamaBarang($response1[$c]['id_jenis'])[0]);
+            $sheet->setCellValue('C'.$xy, getSektorName(getNamaBarang($response1[$c]['id_jenis'])[1]));
+            if(isset($response1[$c]['sektor_dest'])&&!empty($response1[$c]['sektor_dest'])){
+                $sheet->setCellValue('D'.$xy, "Perpindahan ke ".getSektorName($response1[$c]['sektor_dest']));
+            }else{
+                $sheet->setCellValue('D'.$xy, 'Penambahan/Pengurangan');
+            }
+            
+            $sheet->setCellValue('E'.$xy, $response1[$c]['baik']);
+            $sheet->setCellValue('F'.$xy, $response1[$c]['rusak']);
+            $sheet->setCellValue('G'.$xy, $response1[$c]['reason']);
+            $sheet->setCellValue('H'.$xy, $response1[$c]['status']);
+            $sheet->setCellValue('I'.$xy, $response1[$c]['rejected_reason']);
+            $sheet->setCellValue('J'.$xy, $response1[$c]['created_date']);
+            $sheet->setCellValue('K'.$xy, $$response1[$c]['updated_date']);
+            $xy++;
+        }
+    }
+}else{
 $xy=2;
 for($i = 1 ; $i<=$make_hal;$i++){
 $make_call1 = callAPI('POST', 'http://localhost:8080/menu/list/olah_stok/'.$i, $stringjs);
@@ -93,6 +128,7 @@ for($i = 1 ; $i<=$make_hal;$i++){
         $xy++;
     }
 };
+}
 
 $writer = new PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
 $writer->save('report.xlsx');

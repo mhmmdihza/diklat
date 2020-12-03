@@ -4,9 +4,6 @@ session_start();
  if( !isset($_SESSION['username']) ){
     echo "<script>alert('Login terlebih dahulu!'); window.location='login.php';</script>";
 };
-if($_SESSION['role']==3){
-    echo '<meta http-equiv="refresh" content="0; URL=arsipsektor.php?id=olah_stok&page=1" />';
-};
 $fnama ="";
 $ftype="";
 $fstatus="";
@@ -32,14 +29,10 @@ $filterc = "nama=".$fnama.'&type='.$ftype.'&status='.$fstatus.'&tglpengajuan='.$
 <html>
 <head>
 <?php 
-$data_array =  array('nama_barang' => $fnama,'status' => $fstatus ,'created_date' =>$ftglpengajuan, 'nama_sektor_asal'=>$ftglpersetujuan);
-$stringjs = json_encode($data_array);
-if(!isset($_GET['id'])&&!isset($_GET['page'])&&empty($_GET['page'])&&empty($_GET['id'])){
-    echo '<meta http-equiv="refresh" content="0; URL=arsip.php?id=olah_stok&page=1" />';
-}else{ 
-    $make_hal = callAPI('POST', 'http://localhost:8080/menu/countpage/olah_stok', $stringjs);
-    $make_hal2 = callAPI('POST', 'http://localhost:8080/menu/countpage/nonolah_stok', $stringjs);
-}
+    $data_array =  array('nama_barang' => $fnama);
+    $stringjs = json_encode($data_array);
+    $make_hal = callAPI('POST', 'http://localhost:8080/staff/countpage/'.$_SESSION['sektor'], $stringjs);
+
 ?>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -245,7 +238,7 @@ a.disabled {
       ?>
       "'>
       Perlengkapan Non Operasional</a></li>
-      <li><i class="fa fa-download	"></i> <a href="/arsip.php" style="color: #000000;text-decoration:none;">Arsip</a></li>
+      <li><i class="fa fa-download	"></i> <a href="/arsipsektor.php" style="color: #000000;text-decoration:none;">Arsip</a></li>
       <?php 
           if($_SESSION['role']<2){
               echo '<li><i class="fa fa-tasks	"></i> <a href="/kelola.php" style="color: #000000;text-decoration:none;">Kelola aplikasi</a></li>';
@@ -260,14 +253,10 @@ a.disabled {
   if($_SESSION['role']==3){
       $ftglpersetujuan = getSektorName($_SESSION['sektor']);
   }
-  $data_array =  array('nama_barang' => $fnama,'status' => $fstatus ,'created_date' =>$ftglpengajuan, 'nama_sektor_asal'=>$ftglpersetujuan);
-  $stringjs = json_encode($data_array);
+  
   $make_call;
-  if($_SESSION['role']==3){
-      $make_call = callAPI('POST', 'http://localhost:8080/menu/list/'.$_GET['id'].'/'.$_GET['page'], $stringjs);
-  }else{
-      $make_call = callAPI('POST', 'http://localhost:8080/menu/list/'.$_GET['id'].'/'.$_GET['page'], $stringjs);
-  }  
+  $make_call = callAPI('POST', 'http://localhost:8080/staff/list/'.$_GET['page'].'/'.$_SESSION['sektor'], $stringjs);
+
   $response = json_decode($make_call, true);
   ?>
     <table class='table' id='filter'>
@@ -277,25 +266,6 @@ a.disabled {
   </tr>
   <tr>
   <form method="post" action="downloadreport.php" class="form">
-  <td style="width:160px"><label for="Status">Status</label></td>
-  <td>:<select style="width:180px" name="status" id="fstatus" value="<?php echo $fstatus?>">
-  <option value="">Pilih Status</option>
-  <option value="Waiting" <?php if($fstatus=='Waiting'){
-      echo 'selected';
-  }?>>Waiting</option>
-  <option value="Approved" <?php if($fstatus=='Approved'){
-      echo 'selected';
-  }?>>Approved</option>
-  <option value="Rejected" <?php if($fstatus=='Rejected'){
-      echo 'selected';
-  }?>>Rejected</option>
-</select>
-  </td>
-  </tr>
-  <tr>
-  <td style="width:160px"><label for="created_date">Tanggal Pengajuan</label></td>
-  <td>:<input type="date" id="fcreated_date" name="created_date" value="<?php echo $ftglpengajuan?>"></td>
-  </tr>
   <?php if($_SESSION['role']<3){ ?>
   <tr>
   <td style="width:160px"><label for="nama_sektor_asal">Nama Sektor Pengaju</label></td>
@@ -308,7 +278,7 @@ a.disabled {
   <td><input id="submit-btnreport" type="submit" name="submit" value="download" /></td>
   </tr>
   </form>
-  </table><b>Perlengkapan Operasional</b>
+  </table><b>Perlengkapan Operasional & Non Operasional</b>
   <?php
   echo "<table class='table' id='customers'><tr><th>ID</th><th>Nama Barang</th><th>Sektor</th><th>Type</th><th>Baik</th><th>Rusak</th><th>Keterangan</th><th>Status</th><th>Alasan ditolak(jika ada)</th><th>Tanggal Pengajuan</th><th>Tanggal Persetujuan/penolakan</th></tr>";
   for($c = 0 ; $c <sizeof($response);$c++){
@@ -316,7 +286,6 @@ a.disabled {
       echo "<td>";
       echo $response[$c]['id'];
       echo "</td>";
-      if($_SESSION['role']!=3){
           echo "<td>";
           echo getNamaBarang($response[$c]['id_jenis'])[0];
           echo "</td>";
@@ -326,107 +295,25 @@ a.disabled {
           }else{
               echo "<td>Penambahan/Pengurangan</td>";
           }
-              echo "<td>".$response[$c]['baik']."</td>";
-              echo "<td>".$response[$c]['rusak']."</td>";
-              echo "<td>".$response[$c]['reason']."</td>";
-              echo "<td>".$response[$c]['status']."</td>";
-              echo "<td>".$response[$c]['rejected_reason']."</td>";
-              echo "<td>".$response[$c]['created_date']."</td>";
-              echo "<td>".$response[$c]['updated_date']."</td>";
+          echo "<td>".$response[$c]['baik']."</td>";
+          echo "<td>".$response[$c]['rusak']."</td>";
+          echo "<td>".$response[$c]['reason']."</td>";
+          echo "<td>".$response[$c]['status']."</td>";
+          echo "<td>".$response[$c]['rejected_reason']."</td>";
+          echo "<td>".$response[$c]['created_date']."</td>";
+          echo "<td>".$response[$c]['updated_date']."</td>";
           
-      }else{
-          echo "<td>";
-          echo getNamaBarang($response[$c]['id_jenis'])[0];
-          echo "</td>";
-          echo "<td>".getSektorName(getNamaBarang($response[$c]['id_jenis'])[1])."</td>";
-          if(isset($response[$c]['sektor_dest'])&&!empty($response[$c]['sektor_dest'])){
-              echo "<td>Perpindahan ke ".getSektorName($response[$c]['sektor_dest'])."</td>";
-          }else{
-              echo "<td>Penambahan/Pengurangan</td>";
-          }
-              echo "<td>".$response[$c]['baik']."</td>";
-              echo "<td>".$response[$c]['rusak']."</td>";
-              echo "<td>".$response[$c]['reason']."</td>";
-              echo "<td>".$response[$c]['status']."</td>";
-              echo "<td>".$response[$c]['rejected_reason']."</td>";
-              echo "<td>".$response[$c]['created_date']."</td>";
-              echo "<td>".$response[$c]['updated_date']."</td>";
-          
-      }
-      echo "</tr>";
-  }
-  echo "</tr>";
-  ?>
-
-
-  <?php
-  echo "</table>"; 
-  
-  //BATAS OPERASIONAL DAN NON OPERASIONAL
-  echo "<b>Perlengkapan Non Operasional</b>";
-  if($_SESSION['role']==3){
-      $make_call = callAPI('POST', 'http://localhost:8080/menu/list/non'.$_GET['id'].'/'.$_GET['page'], $stringjs);
-  }else{
-      $make_call = callAPI('POST', 'http://localhost:8080/menu/list/non'.$_GET['id'].'/'.$_GET['page'], $stringjs);
-  }
-  $response = json_decode($make_call, true);
-  
-  echo "<table class='table' id='customers'><tr><th>ID</th><th>Nama Barang</th><th>Sektor</th><th>Type</th><th>Baik</th><th>Rusak</th><th>Keterangan</th><th>Status</th><th>Alasan ditolak(jika ada)</th><th>Tanggal Pengajuan</th><th>Tanggal Persetujuan/penolakan</th></tr>";
-  for($c = 0 ; $c <sizeof($response);$c++){
-      echo "<tr>";
-      echo "<td>";
-      echo $response[$c]['id'];
-      echo "</td>";
-      if($_SESSION['role']!=3){
-          echo "<td>";
-          echo getNamaBarang2($response[$c]['id_jenis'])[0];
-          echo "</td>";
-          echo "<td>".getSektorName(getNamaBarang2($response[$c]['id_jenis'])[1])."</td>";
-          if(isset($response[$c]['sektor_dest'])&&!empty($response[$c]['sektor_dest'])){
-              echo "<td>Perpindahan ke ".getSektorName($response[$c]['sektor_dest'])."</td>";
-          }else{
-              echo "<td>Penambahan/Pengurangan</td>";
-          }
-              echo "<td>".$response[$c]['baik']."</td>";
-              echo "<td>".$response[$c]['rusak']."</td>";
-              echo "<td>".$response[$c]['reason']."</td>";
-              echo "<td>".$response[$c]['status']."</td>";
-              echo "<td>".$response[$c]['rejected_reason']."</td>";
-              echo "<td>".$response[$c]['created_date']."</td>";
-              echo "<td>".$response[$c]['updated_date']."</td>";
-          
-      }else{
-          echo "<td>";
-          echo getNamaBarang2($response[$c]['id_jenis'])[0];
-          echo "</td>";
-          echo "<td>".getSektorName(getNamaBarang2($response[$c]['id_jenis'])[1])."</td>";
-          if(isset($response[$c]['sektor_dest'])&&!empty($response[$c]['sektor_dest'])){
-              echo "<td>Perpindahan ke ".getSektorName($response[$c]['sektor_dest'])."</td>";
-          }else{
-              echo "<td>Penambahan/Pengurangan</td>";
-          }
-              echo "<td>".$response[$c]['baik']."</td>";
-              echo "<td>".$response[$c]['rusak']."</td>";
-              echo "<td>".$response[$c]['reason']."</td>";
-              echo "<td>".$response[$c]['status']."</td>";
-              echo "<td>".$response[$c]['rejected_reason']."</td>";
-              echo "<td>".$response[$c]['created_date']."</td>";
-              echo "<td>".$response[$c]['updated_date']."</td>";
-          
-      }
+      
       echo "</tr>";
   }
   echo "</tr>";
   echo "</table>"; 
-  $halaman;
-  if(json_decode($make_hal, true)>json_decode($make_hal2, true)){
-      $halaman = json_decode($make_hal, true);
-  }else{
-      $halaman = json_decode($make_hal2, true);
-  }
+
+  $halaman = json_decode($make_hal, true);
+
   echo "<b>Halaman</b>";
   for ($i=1; $i<=$halaman ; $i++){ ?>
-  <a href="/arsip.php?page=<?php echo $i.'&id='.$_GET['id'].'&'.$filterc; ?>"><?php echo $i; ?></a>
+  <a href="/arsipsektor.php?page=<?php echo $i.'&id='.$_GET['id'].'&'.$filterc; ?>"><?php echo $i; ?></a>
  
   <?php } ?>
   </div>
@@ -443,7 +330,7 @@ a.disabled {
 <script>
 function filterzz(){
 	var x = document.getElementById('fnama_barang').value;
-	window.location.href = 'arsip.php?id=<?php echo $_GET['id'].'&page='.$_GET['page'].'&nama='?>'+x;
+	window.location.href = 'arsipsektor.php?id=<?php echo $_GET['id'].'&page='.$_GET['page'].'&nama='?>'+x;
 }
 </script>
 <script>
@@ -485,16 +372,16 @@ function filterzz(){
 })(jQuery);
 
 $('#fnama_barang').donetyping(function(){
-  window.location.replace('arsip.php?id=olah_stok&page=<?php echo $_GET['page']."&nama="?>'+$('#fnama_barang').val()+'&status='+$('#fstatus').val()+'&namasektorpengaju='+$('#fnama_sektor_asal').val()+'&tglpengajuan='+$('#fcreated_date').val());
+  window.location.replace('arsipsektor.php?id=olah_stok&page=<?php echo $_GET['page']."&nama="?>'+$('#fnama_barang').val()+'&status='+$('#fstatus').val()+'&namasektorpengaju='+$('#fnama_sektor_asal').val()+'&tglpengajuan='+$('#fcreated_date').val());
 });
 $('#fnama_sektor_asal').donetyping(function(){
-  window.location.replace('arsip.php?id=olah_stok&page=<?php echo $_GET['page']."&nama="?>'+$('#fnama_barang').val()+'&status='+$('#fstatus').val()+'&namasektorpengaju='+$('#fnama_sektor_asal').val()+'&tglpengajuan='+$('#fcreated_date').val());
+  window.location.replace('arsipsektor.php?id=olah_stok&page=<?php echo $_GET['page']."&nama="?>'+$('#fnama_barang').val()+'&status='+$('#fstatus').val()+'&namasektorpengaju='+$('#fnama_sektor_asal').val()+'&tglpengajuan='+$('#fcreated_date').val());
 });
 $('#fstatus').change(function(){
-  window.location.replace('arsip.php?id=olah_stok&page=<?php echo $_GET['page']."&nama="?>'+$('#fnama_barang').val()+'&status='+$('#fstatus').val()+'&namasektorpengaju='+$('#fnama_sektor_asal').val()+'&tglpengajuan='+$('#fcreated_date').val());
+  window.location.replace('arsipsektor.php?id=olah_stok&page=<?php echo $_GET['page']."&nama="?>'+$('#fnama_barang').val()+'&status='+$('#fstatus').val()+'&namasektorpengaju='+$('#fnama_sektor_asal').val()+'&tglpengajuan='+$('#fcreated_date').val());
 });
 $('#fcreated_date').change(function(){
-  window.location.replace('arsip.php?id=olah_stok&page=<?php echo $_GET['page']."&nama="?>'+$('#fnama_barang').val()+'&status='+$('#fstatus').val()+'&namasektorpengaju='+$('#fnama_sektor_asal').val()+'&tglpengajuan='+$('#fcreated_date').val());
+  window.location.replace('arsipsektor.php?id=olah_stok&page=<?php echo $_GET['page']."&nama="?>'+$('#fnama_barang').val()+'&status='+$('#fstatus').val()+'&namasektorpengaju='+$('#fnama_sektor_asal').val()+'&tglpengajuan='+$('#fcreated_date').val());
 });
 </script>
 </body>
@@ -503,6 +390,9 @@ $('#fcreated_date').change(function(){
 function getNamaBarang($id){
     $make_call3 = callAPI('POST', 'http://localhost:8080/jenis/find', '{"id":"'.$id.'"}');
     $response3 = json_decode($make_call3, true);
+    if(!isset($response3['nama'])){
+        return getNamaBarang2($id);
+    }
     return array($response3['nama'],$response3['sektor']);
 };
 function getNamaBarang2($id){
