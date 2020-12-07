@@ -271,11 +271,6 @@ a.disabled {
   $response = json_decode($make_call, true);
   ?>
     <table class='table' id='filter'>
-    <form method="post" action="downloadreport.php" class="form">
-  <tr>
-  <td style="width:160px"><label for="nama_barang">Nama Barang</label></td>
-  <td>:<input type="text" id="fnama_barang" name="nama_barang" value="<?php echo $fnama?>"></td>
-  </tr>
   <tr>
   <form method="post" action="downloadreport.php" class="form">
   <td style="width:160px"><label for="Status">Status</label></td>
@@ -304,7 +299,9 @@ a.disabled {
   </tr> 
   <?php 
   };
-  ?>
+  ?><td style="width:160px"><label for="nama_barang">Nama Barang</label></td>
+  <td>:<input type="text" id="fnama_barang" name="nama_barang" value="<?php echo $fnama?>"></td>
+  </tr>
     <tr>
   <td><input id="submit-btnreport" type="submit" name="submit" value="download" /></td>
   </tr>
