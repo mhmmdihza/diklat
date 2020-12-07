@@ -261,10 +261,6 @@ a.disabled {
   ?>
     <table class='table' id='filter'>
   <tr>
-  <td style="width:160px"><label for="nama_barang">Nama Barang</label></td>
-  <td>:<input type="text" id="fnama_barang" name="nama_barang" value="<?php echo $fnama?>"></td>
-  </tr>
-  <tr>
   <form method="post" action="downloadreport.php" class="form">
   <?php if($_SESSION['role']<3){ ?>
   <tr>
@@ -273,7 +269,9 @@ a.disabled {
   </tr> 
   <?php 
   };
-  ?>
+  ?><td style="width:160px"><label for="nama_barang">Nama Barang</label></td>
+  <td>:<input type="text" id="fnama_barang" name="nama_barang" value="<?php echo $fnama?>"></td>
+  </tr>
     <tr>
   <td><input id="submit-btnreport" type="submit" name="submit" value="download" /></td>
   </tr>
