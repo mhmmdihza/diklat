@@ -323,7 +323,7 @@ a.disabled {
 	   
 	   for ($i = 0; $i < sizeof($response2); $i++){
 	       echo "</p>".$response2[$i]['nama'];
-	       echo '<a href="#" onclick="myFunction'.$i.'()" ><i class="fa fa-caret-down"></i></a>';
+	       echo '<a href="javascript:void(0)" onclick="myFunction'.$i.'()" ><i class="fa fa-caret-down"></i></a>';
 	       echo '<div id="myDIV'.$i.'" style="display: none;">';
 	       $make_call3 = callAPI('POST', 'http://localhost:8080/jenis/findBySubKategori/'.$response2[$i]['id'], json_encode($arrSektor));
 	       $response3 = json_decode($make_call3, true);
