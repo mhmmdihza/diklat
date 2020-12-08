@@ -12,7 +12,7 @@ $fstatus="";
 $ftglpengajuan="";
 $namasektorpengaju="";
 if(isset($_POST['nama_barang'])){
-    $fnama = $_GET['nama_barang'];
+    $fnama = $_POST['nama_barang'];
 };
 if(isset($_POST['status'])){
     $fstatus = $_POST['status'];
@@ -41,7 +41,50 @@ if($_SESSION['role']==3){
 
 $spreadsheet = new PhpOffice\PhpSpreadsheet\Spreadsheet();
 $spreadsheet->getProperties();
+
 $sheet = $spreadsheet->getActiveSheet();
+
+$spreadsheet->getProperties();
+$spreadsheet->getDefaultStyle()
+->getFont()
+->setName('Arial')
+->setSize(10);
+
+$spreadsheet->getActiveSheet()->getColumnDimension('A')->setWidth(5);
+$spreadsheet->getActiveSheet()->getColumnDimension('B')->setWidth(27);
+$spreadsheet->getActiveSheet()->getColumnDimension('C')->setWidth(27);
+$spreadsheet->getActiveSheet()->getColumnDimension('D')->setWidth(27);
+$spreadsheet->getActiveSheet()->getColumnDimension('E')->setWidth(8);
+$spreadsheet->getActiveSheet()->getColumnDimension('F')->setWidth(8);
+$spreadsheet->getActiveSheet()->getColumnDimension('G')->setWidth(27);
+$spreadsheet->getActiveSheet()->getColumnDimension('H')->setWidth(10);
+$spreadsheet->getActiveSheet()->getColumnDimension('I')->setWidth(27);
+$spreadsheet->getActiveSheet()->getColumnDimension('J')->setWidth(18);
+$spreadsheet->getActiveSheet()->getColumnDimension('K')->setWidth(18);
+
+//
+//$spreadsheet->getActiveSheet()->getStyle('A1:K1')->setSize(11);
+//$spreadsheet->getActiveSheet()->getStyle('A1:K1')->setBold(true);
+
+$tableHead = [
+  'font'=>[
+      'color'=>[
+          'rgb'=>'FFFFFF'
+      ],
+  ],
+    'fill'=>[
+        'startColor'=>[
+            'rgb' => '538ED5'
+        ]
+    ],
+];
+
+$spreadsheet->getActiveSheet()->getStyle('A1:K1')->applyFromArray($tableHead);
+$spreadsheet->getActiveSheet()->getStyle('A1:K1')
+    ->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID);
+$spreadsheet->getActiveSheet()->setAutoFilter('A1:K1');
+//
+
 
 $sheet->setCellValue('A1', 'ID');
 $sheet->setCellValue('B1', 'Nama Barang');
