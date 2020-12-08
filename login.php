@@ -160,7 +160,7 @@ body {
 <div class="header">
   <table style="width:100%">
   <tr>
-    <th style="text-align:left;"><img src="logodamkar.jpg" alt="Nature" class="responsive" width="50" height="50"> Data Sarana Dan Prasana<br />Sudin Penaggulangan Kebakaran Dan Penyelamatan Jakarta Barat</th>
+    <th style="text-align:left;"><img src="logodamkar.jpg" alt="Nature" class="responsive" width="50" height="50"> Data Sarana Dan Prasana<br />Sudin Penanggulangan Kebakaran Dan Penyelamatan Jakarta Barat</th>
   </tr>
 </table>
 </div>

@@ -181,7 +181,7 @@ a.disabled {
 <div class="header">
   <table style="width:100%">
   <tr>
-    <th style="text-align:left;"><img src="logodamkar.jpg" alt="Nature" class="responsive" width="50" height="50"> Data Sarana Dan Prasana<br />Sudin Penaggulangan Kebakaran Dan Penyelamatan Jakarta Barat</th>
+    <th style="text-align:left;"><img src="logodamkar.jpg" alt="Nature" class="responsive" width="50" height="50"> Data Sarana Dan Prasana<br />Sudin Penanggulangan Kebakaran Dan Penyelamatan Jakarta Barat</th>
     <th style="text-align:right;">Selamat Datang <?php echo $_SESSION['username'];?> <a href="/logout.php" style="color: #000000;text-decoration:none;"><i class="fa fa-sign-out"></i>Keluar</a></th> 
   </tr>
 </table>
