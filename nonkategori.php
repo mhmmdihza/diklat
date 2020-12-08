@@ -276,9 +276,7 @@ a.disabled {
       echo "<h1>Perlengkapan Non Operasional</h1>";
       echo "<p>";
       
-      if($_SESSION['role']==3){
-          echo "data data";
-      }else{
+      
       echo '<form action=\"checknonop.php\" method=\"post\">Pilih Sektor  <input type=\"submit\" name=\"formSubmit\" value=\"Submit\" /><br \>';
       $make_call = callAPI('POST', 'http://localhost:8080/sektor/findall/'.$_SESSION['username'], null);
       $response = json_decode($make_call, true);
@@ -288,7 +286,7 @@ a.disabled {
       }
       echo ''; 
       echo '</form>';
-      }
+      
       echo "</p>";
       ?>
       "'>

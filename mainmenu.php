@@ -237,7 +237,6 @@ a.disabled {
 	   $response2;
 	   $make_call3;
 	   $response3;
-	    
 	   if($_SESSION['role']<2){
     	   $make_call2 = callAPI('POST', 'http://localhost:8080/olahstok/findbystatus/Waiting/'.$_SESSION['username'], null);
     	   $response2 = json_decode($make_call2, true);
@@ -249,9 +248,8 @@ a.disabled {
 	       $make_call3 = callAPI('POST', 'http://localhost:8080/menu/list/nonolah_stok/1', '{"nama_sektor_asal":"'.getSektorName($_SESSION['sektor']).'"}');
 	       $response3 = json_decode($make_call3, true);
 	   }
-	   
 
-	       echo "<table class='table' id='customers'><tr><th>ID</th><th>Nama Barang</th><th>Sektor</th><th>Jenis Perubahan</th><th>Sektor Tujuan</th><th>Baik</th><th>Rusak</th><th>Keterangan</th>";
+	       echo '<table class="table" id="customers"><tr><th>ID</th><th>Nama Barang</th><th>Sektor</th><th>Jenis Perubahan</th><th>Sektor Tujuan</th><th>Baik</th><th>Rusak</th><th>Keterangan</th>';
 	       if($_SESSION['role']!=3){
            echo "<th style=\"column-width:500px;\">Aksi</th></tr>";
 	       }else{
@@ -265,13 +263,17 @@ a.disabled {
 	             if($_SESSION['role']!=3){
 	                 echo "<td>".getNamaBarang($response2[$x]['idJenis'])[0]."</td>";
 	                 echo "<td>".getSektorName(getNamaBarang($response2[$x]['idJenis'])[1])."</td>";
+	                 
 	                 if(isset($response2[$x]['sektorDest'])){
+	                     
 	                     echo "<td>Perpindahan</td>";
 	                     echo "<td>".getSektorName($response2[$x]['sektorDest'])."</td>";
 	                     $statusSend = "statustrx=2";
+	                     
 	                 }else{
 	                     echo "<td>Penambahan/Pengurangan</td>";
 	                     echo "<td></td>";
+	                     
 	                 }
 	             }else{
 	                 echo "<td>".getNamaBarang($response2[$x]['id_jenis'])[0]."</td>";
@@ -280,6 +282,7 @@ a.disabled {
 	                     echo "<td>Perpindahan</td>";
 	                     echo "<td>".getSektorName($response2[$x]['sektor_dest'])."</td>";
 	                     $statusSend = "statustrx=2";
+	                     
 	                 }else{
 	                     echo "<td>Penambahan/Pengurangan</td>";
 	                     echo "<td></td>";
